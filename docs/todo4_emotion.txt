@@ -1,0 +1,34 @@
+# Phase 4: 情绪表达引擎
+# 重点：预留素材加载接口 (BaseMaterialProvider)
+
+## 4.1 抽象基类定义 (预留接口)
+- [ ] 创建文件：`src/core/emotion_engine/providers.py`
+  - [ ] 定义抽象基类：`BaseMaterialProvider`
+    - [ ] 抽象方法：`__init__(self, config: dict)`
+      - [ ] 参数：config 包含该素材包的特定配置
+    - [ ] 抽象方法：`get_material(self, emotion: str, intensity: float, persona_style: str) -> str`
+      - [ ] 功能：根据参数返回具体的表情字符串或资源标识符
+      - [ ] 返回：String (颜文字/Emoji/图片路径/音频路径)
+    - [ ] 预留抽象方法：`list_available_emotions(self) -> List[str]`
+
+## 4.2 默认实现 (颜文字)
+- [ ] 创建文件：`src/core/emotion_engine/kaomoji_provider.py`
+  - [ ] 定义类：`KaomojiProvider(BaseMaterialProvider)`
+    - [ ] 方法：`__init__(self, config: dict)`
+      - [ ] 逻辑：加载 `assets/materials/{config['file']}.yaml`
+    - [ ] 方法：`get_material(self, emotion: str, intensity: float, persona_style: str) -> str`
+      - [ ] 逻辑：根据 intensity 选择不同激烈程度的颜文字
+      - [ ] 交互：如果找不到匹配情绪，返回 config 中定义的 default
+
+- [ ] 创建示例素材包：`assets/materials/kaomoji_cute.yaml`
+  - [ ] 结构示例：
+    ```yaml
+    metadata:
+      name: "Cute Kaomoji"
+      type: "kaomoji"
+    mappings:
+      happy:
+        low: ["(^_^)", "(◕‿◕)"]
+        high: ["(≧▽≦)", "ヽ(✿ﾟ▽ﾟ)ノ"]
+      sad:
+        low: ["(._.)", "(T_T)"]

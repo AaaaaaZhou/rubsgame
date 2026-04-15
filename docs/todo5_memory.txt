@@ -1,0 +1,39 @@
+
+---
+
+### 📁 Phase 5: 记忆精炼与持久化引擎
+**文件：`todo_phase5_memory.txt`**
+
+```txt
+# Phase 5: 记忆精炼与持久化引擎
+# 目标：退出时自动压缩历史、提取记忆
+
+## 5.1 历史精炼策略
+- [ ] 创建文件：`src/core/memory_engine/refiners.py`
+  - [ ] 定义抽象基类：`BaseHistoryRefiner`
+    - [ ] 抽象方法：`refine(self, full_history: List[Message]) -> List[Message]`
+  
+  - [ ] 定义类：`NaiveCompressor(BaseHistoryRefiner)`
+    - [ ] 逻辑：保留首尾 N 轮对话，中间部分进行摘要或丢弃
+    - [ ] 配置：通过 settings.yaml 配置保留轮数
+
+  - [ ] 预留类：`LLMSummarizer(BaseHistoryRefiner)`
+    - [ ] 预留：调用 LLM 对中间历史进行总结
+
+## 5.2 记忆提取器
+- [ ] 创建文件：`src/core/memory_engine/extractors.py`
+  - [ ] 定义类：`MemoryExtractor`
+    - [ ] 方法：`__init__(self, llm_client: BaseLLMClient)` (预留，也可规则提取)
+    - [ ] 方法：`extract(self, history: List[Message]) -> List[MemoryItem]`
+      - [ ] 逻辑：目前可先用简单规则 (如查找包含"记住"、"约定"的句子)
+      - [ ] 预留：调用 LLM 进行 NER 与关系提取
+
+## 5.3 记忆引擎主控
+- [ ] 创建文件：`src/core/memory_engine/engine.py`
+  - [ ] 定义类：`MemoryEngine`
+    - [ ] 方法：`__init__(self, config: AppConfig, asset_manager: AssetManager)`
+    - [ ] 方法：`finalize_session(self, session: ConversationSession)`
+      - [ ] 交互：调用 Refiner 生成 session.refined_history
+      - [ ] 交互：调用 Extractor 生成 session.session_memories
+      - [ ] 交互：遍历 memories，将 type=world_extend 的条目通过 asset_manager 更新到全局
+      - [ ] 交互：调用 SessionManager 保存文件

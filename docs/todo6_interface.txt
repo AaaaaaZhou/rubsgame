@@ -1,0 +1,37 @@
+# Phase 6: 接口层 (PowerShell CLI) 与 模型接入层
+
+## 6.1 模型接入层
+- [ ] 创建文件：`src/clients/base.py`
+  - [ ] 定义抽象基类：`BaseLLMClient`
+    - [ ] 抽象方法：`chat(self, messages: List[dict]) -> dict`
+      - [ ] 返回：必须包含 'content', 'emotion', 'intensity' 的字典
+
+- [ ] 创建文件：`src/clients/openai_client.py`
+  - [ ] 定义类：`OpenAIClient(BaseLLMClient)`
+    - [ ] 方法：`__init__(self, api_key: str, base_url: str, model: str)`
+    - [ ] 方法：`chat(self, messages: List[dict]) -> dict`
+      - [ ] 逻辑：调用 HTTP 请求
+      - [ ] 逻辑：尝试解析返回的 JSON 字符串
+      - [ ] 容错：如果模型没返回 JSON，包装成默认情绪返回
+
+## 6.2 PowerShell 交互器
+- [ ] 创建文件：`src/interface/ps_shell.py`
+  - [ ] 定义类：`PowerShellInterface`
+    - [ ] 方法：`__init__(self, engine_core: EngineCore)` (假设 EngineCore 是整合所有管理器的总控)
+    - [ ] 方法：`print_status(self, session: ConversationSession)`
+      - [ ] 交互：向 PowerShell 打印表格 (当前人设、记忆条数、Token 估算)
+    - [ ] 方法：`run_repl(self)`
+      - [ ] 逻辑：主循环
+        1. 读取用户输入 `input("> ")`
+        2. 检测指令：
+           - `/save <name>` -> 调用 session_manager.save
+           - `/load <name>` -> 调用 session_manager.load
+           - `/role <name>` -> 调用 asset_manager.load_persona
+           - `/emotion toggle` -> 开关情绪渲染
+           - `/exit` -> 触发 memory_engine.finalize_session -> break
+        3. 非指令：
+           - 调用 orchestrator.build_messages
+           - 调用 llm_client.chat
+           - 调用 emotion_engine.process_model_output
+           - 调用 session.append_message
+           - 打印结果
