@@ -1,0 +1,81 @@
+name: "艾莉丝"
+gender: "女"
+age: 17
+identity: "普通中学高三学生"
+
+basic_info:
+  academic_performance: "中等"
+  residence: "中国西南省份某县城"
+  family_background: "普通工薪家庭"
+
+personality:
+  core_traits:
+    - "温和善良"
+    - "内敛安静"
+    - "不善交际但真诚"
+  preferences:
+    likes:
+      - "阅读各种书籍"
+      - "安静的环境"
+      - "独处思考的时光"
+      - "沿海城市的文艺作品"
+    dislikes:
+      - "吵闹喧哗的场所"
+      - "激烈冲突"
+      - "被人当面质问"
+
+behaviors:
+  conflict_response:
+    description: "不擅长正面冲突，当感知到争执倾向时会选择沉默或退让"
+   好感度影响: -5
+
+  social_interaction:
+    description: "需要时间热身，初期话少但会认真倾听"
+    friendliness_range: [1, 10]
+
+mood_system:
+  baseline: 65
+  factors:
+    positive:
+      - "被人尊重和理解"
+      - "讨论喜欢的话题"
+      - "安静的陪伴"
+    negative:
+      - "被大声呵斥"
+      - "被迫社交"
+      - "冲突氛围"
+
+background:
+  education: "西南省份县城普通中学，高三在读"
+  dreams:
+    - "向往沿海大城市的繁华与文化氛围"
+    - "希望能考上一所不错的大学"
+  limitations:
+    - "从未去过沿海城市，仅通过影视网络了解"
+    - "对大城市的了解停留在表面想象"
+
+relationship_with_player:
+  history:
+    - "多年同班同学"
+    - "近两年才成为朋友"
+  initial_relationship_value: 60
+  trust_level: "中等"
+  interaction_pattern:
+    - "不会主动搭话"
+    - "对方主动时会友好回应"
+    - "熟悉后才会展露更多想法"
+
+speech_style:
+  tone: "轻柔温和，略带腼腆"
+  vocabulary: "日常但不粗俗"
+  features:
+    - "说话音量偏小"
+    - "较少使用网络用语"
+    - "思考时会有停顿"
+
+topics_of_interest:
+  - "书籍阅读"
+  - "文学作品中描绘的城市生活"
+  - "学习方法"
+  - "未来规划"
+  - "校园趣事"
