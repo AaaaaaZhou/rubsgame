@@ -4,14 +4,31 @@
 """
 import os
 import yaml
-from typing import Any, Dict, Optional, Union
+import threading
+from pathlib import Path
+from typing import Any, Dict, Optional, Union, List, TypeVar, cast
 from dataclasses import dataclass, field
+
+# 导入项目日志系统
+from .logger import get_logger
+
+# 类型别名
+T = TypeVar('T')
+
+# 常量定义
+DEFAULT_CONFIG_PATH = "config/settings.yaml"
+DEFAULT_LLM_CONFIG_PATH = "config/llm_config.yaml"
+ENV_PREFIX = "LLM_"
+
+# 模块级Logger
+_logger = get_logger("rubsgame.config")
 
 
 @dataclass
 class AppConfig:
     """应用配置单例类"""
     _instance: Optional['AppConfig'] = None
+    _lock: threading.Lock = threading.Lock()
     
     # LLM 模型配置（从 llm_config.yaml 加载）
     llm_models: Dict[str, Dict[str, Any]] = field(default_factory=dict)
@@ -64,22 +81,26 @@ class AppConfig:
     # 开发模式
     dev_mode: bool = False
     
-    def __new__(cls, config_path: str = "config/settings.yaml", model_name: Optional[str] = None):
-        """单例模式实现"""
-        if cls._instance is None:
-            cls._instance = super(AppConfig, cls).__new__(cls)
-            cls._instance._load_config(config_path, model_name)
+    def __new__(cls, config_path: str = DEFAULT_CONFIG_PATH, model_name: Optional[str] = None):
+        """线程安全的单例模式实现"""
+        with cls._lock:
+            if cls._instance is None:
+                cls._instance = super(AppConfig, cls).__new__(cls)
+                cls._instance._load_config(config_path, model_name)
         return cls._instance
     
-    def __init__(self, config_path: str = "config/settings.yaml", model_name: Optional[str] = None):
+    def __init__(self, config_path: str = DEFAULT_CONFIG_PATH, model_name: Optional[str] = None):
         """初始化配置实例
         
-        注意：此方法被dataclass的__init__覆盖，但我们需要接受参数以避免TypeError
-        实际配置加载在__new__中完成
+        注意：此方法被dataclass的__init__覆盖，需要调用super().__init__()
+        实际配置加载已在__new__中完成，此处仅处理参数覆盖
         """
-        # 存储model_name以供后续使用（如果需要）
-        if model_name and not self.current_llm_model:
-            self.current_llm_model = model_name
+        # 必须调用super().__init__()以确保dataclass字段正确初始化
+        super().__init__()
+        
+        # 如果提供了模型名称且当前模型未设置，更新当前模型
+        if model_name:
+            self.set_current_llm_model(model_name)
     
     def _load_config(self, config_path: str, model_name: Optional[str] = None):
         """加载配置（按优先级）"""
@@ -97,10 +118,8 @@ class AppConfig:
     
     def _load_llm_config(self, model_name: Optional[str] = None):
         """加载LLM模型配置"""
-        llm_config_path = "config/llm_config.yaml"
-        
         # 1. 从YAML文件加载LLM配置
-        llm_config = self._load_yaml_config(llm_config_path)
+        llm_config = self._load_yaml_config(DEFAULT_LLM_CONFIG_PATH)
         
         # 2. 存储模型配置
         self.llm_models = llm_config.get("models", {})
@@ -111,11 +130,14 @@ class AppConfig:
             self.current_llm_model = model_name
         else:
             self.current_llm_model = self.default_llm_model
-            
-        # 4. 应用环境变量覆盖
+        
+        # 4. 记录加载的模型信息
+        _logger.info(f"加载 {len(self.llm_models)} 个LLM模型配置，默认模型: {self.default_llm_model}")
+        
+        # 5. 应用环境变量覆盖
         self._apply_llm_env_overrides()
         
-        # 5. 设置向后兼容字段（使用当前模型的配置）
+        # 6. 设置向后兼容字段（使用当前模型的配置）
         if self.current_llm_model in self.llm_models:
             model_config = self.llm_models[self.current_llm_model]
             self.llm_api_key = model_config.get("api_key", "")
@@ -131,41 +153,50 @@ class AppConfig:
             # 通用环境变量（适用于所有模型）
             if api_key := os.getenv("LLM_API_KEY"):
                 model_config["api_key"] = api_key
-                
+                _logger.debug(f"应用通用环境变量 LLM_API_KEY 到模型 {model_name}")
+            
             if base_url := os.getenv("LLM_BASE_URL"):
                 model_config["base_url"] = base_url
-                
+                _logger.debug(f"应用通用环境变量 LLM_BASE_URL 到模型 {model_name}")
+            
             # 模型特定环境变量
             model_prefix = f"LLM_{model_name.upper().replace('-', '_')}"
+            
             if model_specific_api_key := os.getenv(f"{model_prefix}_API_KEY"):
                 model_config["api_key"] = model_specific_api_key
-                
+                _logger.debug(f"应用模型特定环境变量 {model_prefix}_API_KEY 到模型 {model_name}")
+            
             if model_specific_base_url := os.getenv(f"{model_prefix}_BASE_URL"):
                 model_config["base_url"] = model_specific_base_url
-                
+                _logger.debug(f"应用模型特定环境变量 {model_prefix}_BASE_URL 到模型 {model_name}")
+            
             if model_specific_temp := os.getenv(f"{model_prefix}_TEMPERATURE"):
                 try:
                     model_config["temperature"] = float(model_specific_temp)
-                except ValueError:
-                    pass
-                    
+                    _logger.debug(f"应用模型特定环境变量 {model_prefix}_TEMPERATURE 到模型 {model_name}")
+                except ValueError as e:
+                    _logger.warning(f"环境变量 {model_prefix}_TEMPERATURE 值 '{model_specific_temp}' 无法转换为浮点数: {e}")
+            
             if model_specific_tokens := os.getenv(f"{model_prefix}_MAX_TOKENS"):
                 try:
                     model_config["max_tokens"] = int(model_specific_tokens)
-                except ValueError:
-                    pass
+                    _logger.debug(f"应用模型特定环境变量 {model_prefix}_MAX_TOKENS 到模型 {model_name}")
+                except ValueError as e:
+                    _logger.warning(f"环境变量 {model_prefix}_MAX_TOKENS 值 '{model_specific_tokens}' 无法转换为整数: {e}")
     
     def _load_yaml_config(self, config_path: str) -> Dict[str, Any]:
         """从YAML文件加载配置"""
         if not os.path.exists(config_path):
-            print(f"警告：配置文件不存在，使用默认值: {config_path}")
+            _logger.warning(f"配置文件不存在，使用默认值: {config_path}")
             return {}
         
         try:
             with open(config_path, 'r', encoding='utf-8') as f:
-                return yaml.safe_load(f) or {}
+                config = yaml.safe_load(f)
+                _logger.info(f"成功加载配置文件: {config_path}")
+                return config or {}
         except Exception as e:
-            print(f"警告：无法加载配置文件 {config_path}: {e}")
+            _logger.error(f"无法加载配置文件 {config_path}: {e}")
             return {}
     
     def _load_env_config(self) -> Dict[str, Any]:
@@ -186,6 +217,15 @@ class AppConfig:
         if world_dir := os.getenv("WORLD_DIR"):
             env_config["world_dir"] = world_dir
         
+        if material_dir := os.getenv("MATERIAL_DIR"):
+            env_config["material_dir"] = material_dir
+        
+        if session_dir := os.getenv("SESSION_DIR"):
+            env_config["session_dir"] = session_dir
+        
+        if log_dir := os.getenv("LOG_DIR"):
+            env_config["log_dir"] = log_dir
+        
         # 情绪引擎
         if emotion_enabled := os.getenv("EMOTION_ENABLED"):
             env_config["emotion_enabled"] = emotion_enabled.lower() == "true"
@@ -193,6 +233,12 @@ class AppConfig:
         # 记忆引擎
         if refine_strategy := os.getenv("MEMORY_REFINE_STRATEGY"):
             env_config["memory_refine_strategy"] = refine_strategy
+        
+        if compression_ratio := os.getenv("MEMORY_COMPRESSION_RATIO"):
+            try:
+                env_config["memory_compression_ratio"] = float(compression_ratio)
+            except ValueError:
+                _logger.warning(f"环境变量 MEMORY_COMPRESSION_RATIO 值 '{compression_ratio}' 无法转换为浮点数")
         
         # 日志
         if log_level := os.getenv("LOG_LEVEL"):
@@ -225,11 +271,15 @@ class AppConfig:
         for key, value in flat_file_config.items():
             if hasattr(self, key):
                 setattr(self, key, value)
+                _logger.debug(f"应用YAML配置 {key} = {value}")
         
         # 再应用环境变量配置（覆盖YAML）
         for key, value in env_config.items():
             if hasattr(self, key):
                 setattr(self, key, value)
+                _logger.debug(f"应用环境变量配置 {key} = {value}")
+    
+    # ========== 公共API方法 ==========
     
     def get_llm_config(self, model_name: Optional[str] = None) -> Dict[str, Any]:
         """获取LLM配置字典
@@ -246,7 +296,7 @@ class AppConfig:
         
         # 如果模型不存在，使用默认模型
         if model_name not in self.llm_models:
-            print(f"警告：模型 '{model_name}' 不存在，使用默认模型 '{self.default_llm_model}'")
+            _logger.warning(f"模型 '{model_name}' 不存在，使用默认模型 '{self.default_llm_model}'")
             model_name = self.default_llm_model
         
         # 获取模型配置
@@ -274,6 +324,7 @@ class AppConfig:
         """
         if model_name in self.llm_models:
             self.current_llm_model = model_name
+            
             # 更新向后兼容字段
             model_config = self.llm_models[model_name]
             self.llm_api_key = model_config.get("api_key", "")
@@ -282,10 +333,59 @@ class AppConfig:
             self.llm_temperature = model_config.get("temperature", 0.7)
             self.llm_max_tokens = model_config.get("max_tokens", 1024)
             self.llm_structured_output = model_config.get("structured_output", True)
+            
+            _logger.info(f"当前LLM模型已设置为: {model_name}")
             return True
         else:
-            print(f"错误：模型 '{model_name}' 不存在")
+            _logger.error(f"设置当前LLM模型失败: 模型 '{model_name}' 不存在")
             return False
+    
+    def get_available_models(self) -> List[str]:
+        """获取所有可用模型名称列表"""
+        return list(self.llm_models.keys())
+    
+    def validate_config(self) -> bool:
+        """验证配置有效性"""
+        errors = []
+        
+        # 验证LLM模型配置
+        if not self.llm_models:
+            errors.append("未加载任何LLM模型配置")
+        
+        if self.current_llm_model not in self.llm_models:
+            errors.append(f"当前模型 '{self.current_llm_model}' 不在可用模型列表中")
+        
+        # 验证路径配置
+        for path_name, path_value in [
+            ("persona_dir", self.persona_dir),
+            ("world_dir", self.world_dir),
+            ("material_dir", self.material_dir),
+            ("session_dir", self.session_dir),
+            ("log_dir", self.log_dir),
+        ]:
+            if not path_value:
+                errors.append(f"路径配置 '{path_name}' 为空")
+        
+        if errors:
+            _logger.error(f"配置验证失败: {errors}")
+            return False
+        
+        _logger.info("配置验证通过")
+        return True
+    
+    # ========== 便捷属性（property） ==========
+    
+    @property
+    def llm_config(self) -> Dict[str, Any]:
+        """获取当前LLM配置的便捷属性"""
+        return self.get_llm_config()
+    
+    @property
+    def current_llm_model_config(self) -> Dict[str, Any]:
+        """获取当前LLM模型配置的便捷属性"""
+        return self.get_llm_config(self.current_llm_model)
+    
+    # ========== 各模块配置获取方法 ==========
     
     def get_paths_config(self) -> Dict[str, str]:
         """获取路径配置字典"""
