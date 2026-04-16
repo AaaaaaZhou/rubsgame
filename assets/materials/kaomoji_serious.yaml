@@ -1,0 +1,50 @@
+happy:
+  kaomoji:
+    - "(￣▽￣)"
+    - "(｀・ω・´)"
+  illustration: null
+sad:
+  kaomoji:
+    - "(＿´ω￣`)"
+    - "(-ω-)"
+  illustration: null
+angry:
+  kaomoji:
+    - "(｀Д´)"
+    - "(#+_+)"
+  illustration: null
+surprised:
+  kaomoji:
+    - "(´°̴̯̿̿´°)"
+    - "(°o°)"
+  illustration: null
+embarrassed:
+  kaomoji:
+    - "(´_ゝ`)"
+    - "(苦笑)"
+  illustration: null
+thinking:
+  kaomoji:
+    - "(−ω−)"
+    - "(´・ω・`)"
+  illustration: null
+serious:
+  kaomoji:
+    - "(｡･ω･｡)"
+    - "(――)"
+  illustration: null
+confident:
+  kaomoji:
+    - "(ﾟ∀ﾟ)"
+    - "(ゝ∀ゞ)"
+  illustration: null
+greeting:
+  kaomoji:
+    - "(｀∀´)ゞ"
+    - "(・ω・)ノ"
+  illustration: null
+bye:
+  kaomoji:
+    - "ヾ(•ω•`)o"
+    - "(⌒ω⌒)"
+  illustration: null
