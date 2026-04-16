@@ -6,27 +6,27 @@ import os
 import sys
 import logging
 from logging.handlers import RotatingFileHandler
-from typing import Optional, Dict
+from typing import Dict
 
+COLOR_CODES = {
+    'DEBUG': '\033[36m',
+    'INFO': '\033[32m',
+    'WARNING': '\033[33m',
+    'ERROR': '\033[31m',
+    'CRITICAL': '\033[35m',
+    'RESET': '\033[0m'
+}
+
+def _supports_ansi() -> bool:
+    if sys.platform != "win32":
+        return True
+    return os.getenv("TERM") not in (None, "", "dumb")
 
 class ColoredFormatter(logging.Formatter):
-    """带颜色的日志格式化器（用于控制台输出）"""
-    
-    # 颜色代码
-    COLORS = {
-        'DEBUG': '\033[36m',      # 青色
-        'INFO': '\033[32m',       # 绿色
-        'WARNING': '\033[33m',    # 黄色
-        'ERROR': '\033[31m',      # 红色
-        'CRITICAL': '\033[35m',   # 紫色
-        'RESET': '\033[0m'        # 重置
-    }
-    
     def format(self, record):
-        """格式化日志记录，添加颜色"""
         log_message = super().format(record)
-        if record.levelname in self.COLORS:
-            return f"{self.COLORS[record.levelname]}{log_message}{self.COLORS['RESET']}"
+        if _supports_ansi() and record.levelname in COLOR_CODES:
+            return f"{COLOR_CODES[record.levelname]}{log_message}{COLOR_CODES['RESET']}"
         return log_message
 
 
