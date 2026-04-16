@@ -4,7 +4,7 @@
 """
 import os
 import yaml
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 from dataclasses import dataclass, field
 
 
@@ -13,7 +13,12 @@ class AppConfig:
     """应用配置单例类"""
     _instance: Optional['AppConfig'] = None
     
-    # LLM 配置
+    # LLM 模型配置（从 llm_config.yaml 加载）
+    llm_models: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    default_llm_model: str = "gpt-4o-mini"
+    current_llm_model: str = ""
+    
+    # LLM 配置（向后兼容字段，优先使用 llm_models 中的配置）
     llm_api_key: str = ""
     llm_base_url: str = "https://api.openai.com/v1"
     llm_model: str = "gpt-4o-mini"
@@ -59,14 +64,24 @@ class AppConfig:
     # 开发模式
     dev_mode: bool = False
     
-    def __new__(cls, config_path: str = "config/settings.yaml"):
+    def __new__(cls, config_path: str = "config/settings.yaml", model_name: Optional[str] = None):
         """单例模式实现"""
         if cls._instance is None:
             cls._instance = super(AppConfig, cls).__new__(cls)
-            cls._instance._load_config(config_path)
+            cls._instance._load_config(config_path, model_name)
         return cls._instance
     
-    def _load_config(self, config_path: str):
+    def __init__(self, config_path: str = "config/settings.yaml", model_name: Optional[str] = None):
+        """初始化配置实例
+        
+        注意：此方法被dataclass的__init__覆盖，但我们需要接受参数以避免TypeError
+        实际配置加载在__new__中完成
+        """
+        # 存储model_name以供后续使用（如果需要）
+        if model_name and not self.current_llm_model:
+            self.current_llm_model = model_name
+    
+    def _load_config(self, config_path: str, model_name: Optional[str] = None):
         """加载配置（按优先级）"""
         # 1. 从YAML文件加载默认值
         file_config = self._load_yaml_config(config_path)
@@ -76,6 +91,69 @@ class AppConfig:
         
         # 3. 合并配置（环境变量优先于YAML文件）
         self._merge_configs(file_config, env_config)
+        
+        # 4. 加载LLM模型配置
+        self._load_llm_config(model_name)
+    
+    def _load_llm_config(self, model_name: Optional[str] = None):
+        """加载LLM模型配置"""
+        llm_config_path = "config/llm_config.yaml"
+        
+        # 1. 从YAML文件加载LLM配置
+        llm_config = self._load_yaml_config(llm_config_path)
+        
+        # 2. 存储模型配置
+        self.llm_models = llm_config.get("models", {})
+        self.default_llm_model = llm_config.get("default_model", "gpt-4o-mini")
+        
+        # 3. 设置当前模型
+        if model_name and model_name in self.llm_models:
+            self.current_llm_model = model_name
+        else:
+            self.current_llm_model = self.default_llm_model
+            
+        # 4. 应用环境变量覆盖
+        self._apply_llm_env_overrides()
+        
+        # 5. 设置向后兼容字段（使用当前模型的配置）
+        if self.current_llm_model in self.llm_models:
+            model_config = self.llm_models[self.current_llm_model]
+            self.llm_api_key = model_config.get("api_key", "")
+            self.llm_base_url = model_config.get("base_url", "https://api.openai.com/v1")
+            self.llm_model = model_config.get("model", self.current_llm_model)
+            self.llm_temperature = model_config.get("temperature", 0.7)
+            self.llm_max_tokens = model_config.get("max_tokens", 1024)
+            self.llm_structured_output = model_config.get("structured_output", True)
+    
+    def _apply_llm_env_overrides(self):
+        """应用LLM环境变量覆盖"""
+        for model_name, model_config in self.llm_models.items():
+            # 通用环境变量（适用于所有模型）
+            if api_key := os.getenv("LLM_API_KEY"):
+                model_config["api_key"] = api_key
+                
+            if base_url := os.getenv("LLM_BASE_URL"):
+                model_config["base_url"] = base_url
+                
+            # 模型特定环境变量
+            model_prefix = f"LLM_{model_name.upper().replace('-', '_')}"
+            if model_specific_api_key := os.getenv(f"{model_prefix}_API_KEY"):
+                model_config["api_key"] = model_specific_api_key
+                
+            if model_specific_base_url := os.getenv(f"{model_prefix}_BASE_URL"):
+                model_config["base_url"] = model_specific_base_url
+                
+            if model_specific_temp := os.getenv(f"{model_prefix}_TEMPERATURE"):
+                try:
+                    model_config["temperature"] = float(model_specific_temp)
+                except ValueError:
+                    pass
+                    
+            if model_specific_tokens := os.getenv(f"{model_prefix}_MAX_TOKENS"):
+                try:
+                    model_config["max_tokens"] = int(model_specific_tokens)
+                except ValueError:
+                    pass
     
     def _load_yaml_config(self, config_path: str) -> Dict[str, Any]:
         """从YAML文件加载配置"""
@@ -153,16 +231,61 @@ class AppConfig:
             if hasattr(self, key):
                 setattr(self, key, value)
     
-    def get_llm_config(self) -> Dict[str, Any]:
-        """获取LLM配置字典"""
+    def get_llm_config(self, model_name: Optional[str] = None) -> Dict[str, Any]:
+        """获取LLM配置字典
+        
+        Args:
+            model_name: 模型名称，如果为None则使用当前模型
+            
+        Returns:
+            LLM配置字典，包含api_key、base_url等字段
+        """
+        # 确定要使用的模型
+        if model_name is None:
+            model_name = self.current_llm_model
+        
+        # 如果模型不存在，使用默认模型
+        if model_name not in self.llm_models:
+            print(f"警告：模型 '{model_name}' 不存在，使用默认模型 '{self.default_llm_model}'")
+            model_name = self.default_llm_model
+        
+        # 获取模型配置
+        model_config = self.llm_models.get(model_name, {})
+        
+        # 返回配置字典
         return {
-            "api_key": self.llm_api_key,
-            "base_url": self.llm_base_url,
-            "model": self.llm_model,
-            "temperature": self.llm_temperature,
-            "max_tokens": self.llm_max_tokens,
-            "structured_output": self.llm_structured_output
+            "api_key": model_config.get("api_key", ""),
+            "base_url": model_config.get("base_url", "https://api.openai.com/v1"),
+            "model": model_config.get("model", model_name),
+            "temperature": model_config.get("temperature", 0.7),
+            "max_tokens": model_config.get("max_tokens", 1024),
+            "structured_output": model_config.get("structured_output", True),
+            "model_name": model_name  # 添加模型名称到返回字典
         }
+    
+    def set_current_llm_model(self, model_name: str) -> bool:
+        """设置当前LLM模型
+        
+        Args:
+            model_name: 模型名称
+            
+        Returns:
+            是否成功设置
+        """
+        if model_name in self.llm_models:
+            self.current_llm_model = model_name
+            # 更新向后兼容字段
+            model_config = self.llm_models[model_name]
+            self.llm_api_key = model_config.get("api_key", "")
+            self.llm_base_url = model_config.get("base_url", "https://api.openai.com/v1")
+            self.llm_model = model_config.get("model", model_name)
+            self.llm_temperature = model_config.get("temperature", 0.7)
+            self.llm_max_tokens = model_config.get("max_tokens", 1024)
+            self.llm_structured_output = model_config.get("structured_output", True)
+            return True
+        else:
+            print(f"错误：模型 '{model_name}' 不存在")
+            return False
     
     def get_paths_config(self) -> Dict[str, str]:
         """获取路径配置字典"""
