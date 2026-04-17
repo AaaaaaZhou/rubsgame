@@ -1,0 +1,64 @@
+# Phase 6: 人际关系与私人记忆
+
+## 6.1 核心数据模型
+- [ ] 创建文件：`src/models/social_models.py`
+  - [ ] 定义数据类：`Relationship`
+    - [ ] 字段：`subject_id` (str), `object_id` (str)
+    - [ ] 字段：`relation_type` (str, e.g., "stranger", "friend", "rival")
+    - [ ] 字段：`affinity` (int, -100 to 100)
+    - [ ] 字段：`trust` (int, 0 to 100)
+    - [ ] 字段：`key_events` (List[str])
+  - [ ] 定义数据类：`PersonalMemory`
+    - [ ] 字段：`memory_id` (str)
+    - [ ] 字段：`owner_id` (str)
+    - [ ] 字段：`content` (str)
+    - [ ] 字段：`memory_type` (str, e.g., "interaction", "secret", "observation")
+    - [ ] 字段：`importance` (int, 0 to 10)
+    - [ ] 字段：`emotional_valence` (int, -5 to 5)
+    - [ ] 字段：`linked_to` (Optional[str])
+    - [ ] 字段：`timestamp` (datetime)
+
+## 6.2 人际关系管理器
+- [ ] 创建文件：`src/managers/relationship_manager.py`
+  - [ ] 定义类：`RelationshipManager`
+    - [ ] 方法：`__init__(self, storage_path: str)`
+    - [ ] 方法：`get_relationship(self, actor_id: str, target_id: str) -> Relationship`
+      - [ ] 逻辑：查询关系，不存在则返回默认 "stranger" 关系
+    - [ ] 方法：`update_affinity(self, actor_id: str, target_id: str, delta: int)`
+      - [ ] 逻辑：修改好感度，自动 clamp 在 [-100, 100]
+    - [ ] 方法：`add_key_event(self, actor_id: str, target_id: str, event: str)`
+    - [ ] 方法：`save_to_disk(self, actor_id: str)`
+      - [ ] 逻辑：将指定 NPC 的关系网保存为 YAML
+    - [ ] 方法：`load_from_disk(self, actor_id: str)`
+    - [ ] 预留接口：`get_social_network(self, actor_id: str) -> Dict[str, Relationship]`
+
+## 6.3 私人记忆管理器
+- [ ] 创建文件：`src/managers/memory_bank_manager.py`
+  - [ ] 定义类：`MemoryBankManager`
+    - [ ] 方法：`__init__(self, storage_path: str)`
+    - [ ] 方法：`add_memory(self, memory: PersonalMemory)`
+    - [ ] 方法：`retrieve_by_keyword(self, owner_id: str, keyword: str, limit: int = 3) -> List[PersonalMemory]`
+      - [ ] 逻辑：模糊匹配内容中的关键词
+    - [ ] 方法：`retrieve_by_linked(self, owner_id: str, linked_id: str, limit: int = 5) -> List[PersonalMemory]`
+      - [ ] 逻辑：提取与特定对象相关的记忆，按重要度排序
+    - [ ] 方法：`decay_memory_importance(self, owner_id: str, decay_rate: float = 0.95)`
+      - [ ] 逻辑：所有记忆重要度 *= 衰减系数，模拟遗忘
+    - [ ] 方法：`save_to_disk(self, owner_id: str)`
+    - [ ] 方法：`load_from_disk(self, owner_id: str)`
+
+## 6.4 与现有引擎集成
+- [ ] 修改文件：`src/orchestrator/prompt_orchestrator.py`
+  - [ ] 逻辑：在 Prompt 组装链中注入【人际关系上下文】块
+  - [ ] 逻辑：在 Prompt 组装链中注入【核心回忆】块
+- [ ] 修改文件：`src/engine/session_manager.py`
+  - [ ] 逻辑：在 `finalize_session()` 中 hook 记忆抽取逻辑
+  - [ ] 逻辑：将会话中高重要度内容写入 `MemoryBankManager`
+- [ ] 修改文件：`src/engine/emotion_engine.py`
+  - [ ] 逻辑：向 `MaterialProvider` 传递 `relationship_status` 参数
+  - [ ] 逻辑：实现基于关系的素材过滤（如：敌对关系禁用可爱颜文字）
+
+## 6.5 配置文件与示例
+- [ ] 创建示例关系文件：`assets/relationships/alice_rel.yaml`
+  - [ ] 内容：包含与 Player 的初始好感度、与 Bob 的敌对关系示例
+- [ ] 创建示例记忆文件：`assets/memories/alice_mem.yaml`
+  - [ ] 内容：包含 2-3 条初始私人记忆（秘密、过往观察）

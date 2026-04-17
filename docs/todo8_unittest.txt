@@ -1,6 +1,6 @@
-# Phase 7: 测试与示例文件
+# Phase 8 测试与示例文件
 
-## 7.1 示例资产文件
+## 8.1 示例资产文件
 - [ ] 创建：`assets/world/quiet_town.yaml`
   - [ ] 内容：包含 "夕阳酒馆"、"中央广场"、"警局" 等地点描述
 - [ ] 创建：`assets/personas/inn_keeper.yaml`
@@ -8,7 +8,7 @@
 - [ ] 创建：`assets/personas/sheriff.yaml`
   - [ ] 内容：不同的性格，绑定不同的素材包 (如 kaomoji_serious)
 
-## 7.2 单元测试
+## 8.2 单元测试
 - [ ] 创建：`tests/test_session.py`
   - [ ] 测试：保存与加载 JSON 是否数据丢失
 - [ ] 创建：`tests/test_orchestrator.py`
@@ -16,7 +16,7 @@
 - [ ] 创建：`tests/test_emotion_provider.py`
   - [ ] 测试：KaomojiProvider 是否能正确读取 YAML 并返回字符串
 
-## 7.3 端到端测试
+## 8.3 端到端测试
 - [ ] 手动流程测试：
   1. 启动程序，输入 "你好"
   2. 输入 `/role inn_keeper`

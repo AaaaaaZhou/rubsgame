@@ -1,6 +1,6 @@
-# Phase 6: 接口层 (PowerShell CLI) 与 模型接入层
+# Phase 7: 接口层 (PowerShell CLI) 与 模型接入层
 
-## 6.1 模型接入层
+## 7.1 模型接入层
 - [ ] 创建文件：`src/clients/base.py`
   - [ ] 定义抽象基类：`BaseLLMClient`
     - [ ] 抽象方法：`chat(self, messages: List[dict]) -> dict`
@@ -14,7 +14,7 @@
       - [ ] 逻辑：尝试解析返回的 JSON 字符串
       - [ ] 容错：如果模型没返回 JSON，包装成默认情绪返回
 
-## 6.2 PowerShell 交互器
+## 7.2 PowerShell 交互器
 - [ ] 创建文件：`src/interface/ps_shell.py`
   - [ ] 定义类：`PowerShellInterface`
     - [ ] 方法：`__init__(self, engine_core: EngineCore)` (假设 EngineCore 是整合所有管理器的总控)
