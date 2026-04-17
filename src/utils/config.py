@@ -56,7 +56,7 @@ class AppConfig:
             AppConfig._instance = self
 
         self._llm_models: Dict[str, Dict[str, Any]] = {}
-        self._default_llm_model = "deepseek_v32"
+        self._default_llm_model = "deepseek-reasoner"
         self._current_llm_model = ""
 
         self.persona_dir = "assets/personas/"
@@ -111,7 +111,7 @@ class AppConfig:
     def _load_llm_config(self, model_name: Optional[str]):
         llm_config = self._load_yaml_config(DEFAULT_LLM_CONFIG_PATH)
         self._llm_models = llm_config.get("models", {})
-        self._default_llm_model = llm_config.get("default_model", "deepseek_v32")
+        self._default_llm_model = llm_config.get("default_model", "deepseek-reasoner")
 
         if model_name and model_name in self._llm_models:
             self._current_llm_model = model_name
