@@ -9,7 +9,8 @@ import tempfile
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import pytest
-from core.session import Message, MemoryItem, ConversationSession
+from core.types import Message, MemoryItem
+from core.session import ConversationSession
 
 
 class TestMessage:

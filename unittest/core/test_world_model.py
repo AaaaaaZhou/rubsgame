@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import pytest
 from core.world_model import Location, WorldKnowledge
-from core.session import MemoryItem
+from core.types import MemoryItem
 
 
 class TestLocation:

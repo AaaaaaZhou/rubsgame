@@ -1,2 +1,3 @@
 *.pyc
 config/llm_config.yaml
+.claude/settings.local.json

@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional, List
 
 from .base import BaseDataLoader, FileReader
 from ..world_model import WorldKnowledge, Location
-from ..session import MemoryItem
+from ..types import MemoryItem
 
 
 class WorldLoader(BaseDataLoader):

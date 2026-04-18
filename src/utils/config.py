@@ -21,11 +21,13 @@ def _parse_float(value: str) -> Optional[float]:
     except ValueError:
         return None
 
+
 def _parse_int(value: str) -> Optional[int]:
     try:
         return int(value)
     except ValueError:
         return None
+
 
 def _flatten_dict(d: Dict[str, Any], parent_key: str = '', sep: str = '_') -> Dict[str, Any]:
     items = []
@@ -39,6 +41,14 @@ def _flatten_dict(d: Dict[str, Any], parent_key: str = '', sep: str = '_') -> Di
 
 
 class AppConfig:
+    """全局配置类（单例模式）
+
+    配置优先级：YAML配置文件 > 环境变量 > 默认值
+
+    注意：单例实例在首次访问时创建，之后的构造调用会返回同一实例，
+    传入的参数将被忽略。使用 reset() 方法可重置实例（主要用于测试）。
+    """
+
     _instance: Optional['AppConfig'] = None
     _lock = threading.Lock()
 
@@ -263,6 +273,19 @@ class AppConfig:
             "token_limit": self.session_token_limit,
             "auto_save_interval": self.session_auto_save_interval
         }
+
+    @classmethod
+    def reset(cls) -> None:
+        """重置单例实例（主要用于测试）"""
+        with cls._lock:
+            cls._instance = None
+
+    @classmethod
+    def get_instance(cls, **kwargs) -> 'AppConfig':
+        """获取单例实例，未创建则创建之"""
+        if cls._instance is None:
+            cls(**kwargs)
+        return cls._instance
 
 
 config = AppConfig()

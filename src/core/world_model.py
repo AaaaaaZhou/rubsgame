@@ -2,23 +2,35 @@
 世界观数据模型模块
 定义世界观地点和全局记忆的数据结构
 """
-import time
 import logging
-from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, TYPE_CHECKING
+from typing import Dict, List, Any, Optional
 
-if TYPE_CHECKING:
-    from .session import MemoryItem  # 类型检查时导入，避免循环依赖
+from .types import MemoryItem
 
 
-@dataclass
 class Location:
     """世界观地点"""
-    name: str
-    description: str
-    npcs: List[str] = field(default_factory=list)
-    properties: Dict[str, Any] = field(default_factory=dict)  # 动态属性
-    
+
+    def __init__(
+        self,
+        name: str,
+        description: str = "",
+        npcs: Optional[List[str]] = None,
+        properties: Optional[Dict[str, Any]] = None
+    ):
+        """初始化地点
+
+        Args:
+            name: 地点名称
+            description: 地点描述
+            npcs: NPC列表
+            properties: 动态属性字典
+        """
+        self.name = name
+        self.description = description
+        self.npcs = npcs if npcs is not None else []
+        self.properties = properties if properties is not None else {}
+
     def add_npc(self, npc_name: str) -> None:
         """添加NPC到地点
         
@@ -103,12 +115,8 @@ class WorldKnowledge:
         """
         self.world_name = world_name
         self.locations: List[Location] = []
-        self.global_memories: List["MemoryItem"] = []  # 使用字符串引用避免立即导入
-        
-        # 延迟导入以避免循环依赖
-        from .session import MemoryItem
-        self._memory_item_cls = MemoryItem
-        
+        self.global_memories: List[MemoryItem] = []
+
         self._logger = logger or logging.getLogger(f"world.{world_name}")
         self._logger.info(f"World '{world_name}' initialized")
     
@@ -144,18 +152,18 @@ class WorldKnowledge:
                 return location
         return None
     
-    def add_global_memory(self, content: str, priority: int = 5, tags: Optional[List[str]] = None) -> "MemoryItem":
+    def add_global_memory(self, content: str, priority: int = 5, tags: Optional[List[str]] = None) -> MemoryItem:
         """添加全局记忆
-        
+
         Args:
             content: 记忆内容
             priority: 优先级 (0-10)
             tags: 标签列表
-            
+
         Returns:
             创建的MemoryItem对象
         """
-        memory = self._memory_item_cls(
+        memory = MemoryItem(
             content=content,
             memory_type="world_global",
             priority=priority,
@@ -172,7 +180,7 @@ class WorldKnowledge:
         self._logger.debug(f"Added global memory: {content[:50]}...")
         return memory
     
-    def add_existing_memory(self, memory: "MemoryItem") -> None:
+    def add_existing_memory(self, memory: MemoryItem) -> None:
         """添加已存在的记忆项（通常来自会话）
         
         Args:
@@ -235,7 +243,7 @@ class WorldKnowledge:
         
         return results
     
-    def query_memories(self, keyword: str) -> List["MemoryItem"]:
+    def query_memories(self, keyword: str) -> List[MemoryItem]:
         """查询包含关键词的全局记忆
         
         Args:
@@ -268,21 +276,20 @@ class WorldKnowledge:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "WorldKnowledge":
         """从字典恢复世界观
-        
+
         Args:
             data: 世界观数据字典
-            
+
         Returns:
             恢复的WorldKnowledge对象
         """
         world = cls(world_name=data["world_name"])
-        
+
         # 恢复地点
         for loc_data in data.get("locations", []):
             world.locations.append(Location.from_dict(loc_data))
-        
+
         # 恢复全局记忆
-        from .session import MemoryItem
         for mem_data in data.get("global_memories", []):
             world.global_memories.append(MemoryItem.from_dict(mem_data))
         

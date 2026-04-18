@@ -4,85 +4,9 @@
 """
 import time
 import logging
-from dataclasses import dataclass, field, asdict
-from typing import Dict, List, Any, Optional, Literal
-from datetime import datetime
+from typing import Dict, List, Any, Optional
 
-
-@dataclass
-class Message:
-    """对话消息"""
-    role: Literal["system", "user", "assistant"]
-    content: str
-    timestamp: float = field(default_factory=time.time)
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """转换为可序列化的字典"""
-        return {
-            "role": self.role,
-            "content": self.content,
-            "timestamp": self.timestamp,
-            "metadata": self.metadata,
-        }
-    
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Message":
-        """从字典还原消息"""
-        return cls(
-            role=data["role"],
-            content=data["content"],
-            timestamp=data.get("timestamp", time.time()),
-            metadata=data.get("metadata", {})
-        )
-    
-    @property
-    def formatted_time(self) -> str:
-        """获取格式化的时间字符串"""
-        return datetime.fromtimestamp(self.timestamp).strftime("%H:%M:%S")
-
-
-@dataclass
-class MemoryItem:
-    """记忆项 - 用于会话记忆和全局世界观记忆"""
-    content: str
-    memory_type: Literal["session_local", "world_global"]
-    priority: int = field(default=5)
-    tags: List[str] = field(default_factory=list)
-    created_at: float = field(default_factory=time.time)
-    
-    def __post_init__(self):
-        """验证数据有效性"""
-        if not 0 <= self.priority <= 10:
-            raise ValueError(f"Priority must be between 0 and 10, got {self.priority}")
-        if not self.content.strip():
-            raise ValueError("Memory content cannot be empty")
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """转换为可序列化的字典"""
-        return {
-            "content": self.content,
-            "memory_type": self.memory_type,
-            "priority": self.priority,
-            "tags": self.tags,
-            "created_at": self.created_at,
-        }
-    
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "MemoryItem":
-        """从字典还原记忆项"""
-        return cls(
-            content=data["content"],
-            memory_type=data["memory_type"],
-            priority=data.get("priority", 5),
-            tags=data.get("tags", []),
-            created_at=data.get("created_at", time.time())
-        )
-    
-    def add_tag(self, tag: str) -> None:
-        """添加标签（自动去重）"""
-        if tag not in self.tags:
-            self.tags.append(tag)
+from .types import Message, MemoryItem
 
 
 class ConversationSession:

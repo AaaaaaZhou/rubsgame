@@ -431,7 +431,7 @@ class TestIntegration:
     
     def test_world_and_memory_integration(self):
         """测试世界观和记忆的集成"""
-        from core.session import MemoryItem
+        from core.types import MemoryItem
         
         # 创建世界观
         world = WorldKnowledge(world_name="Integration World")
