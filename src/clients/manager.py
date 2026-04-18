@@ -86,7 +86,12 @@ class ClientManager:
         provider = model_config.get("provider", "openai_like")
 
         if provider == "openai_like":
-            client = OpenAILikeClient(model_name, model_config, self._logger)
+            client = OpenAILikeClient(
+                model_name,
+                model_config,
+                self._logger,
+                dev_mode=self._get_config().dev_mode
+            )
         else:
             raise ValueError(
                 f"Unsupported provider '{provider}' for model '{model_name}'"
