@@ -211,7 +211,6 @@ class OpenAILikeClient(BaseLLMClient):
         """dev_mode 下打印完整请求到 CLI"""
         _cli_debug(f"\n[LLM DEBUG] {self._model_name}")
 
-        # 打印 messages（脱敏 content 过长部分）
         for i, msg in enumerate(messages):
             role = msg.get("role", "?")
             content = msg.get("content", "")
@@ -221,11 +220,11 @@ class OpenAILikeClient(BaseLLMClient):
             extra = f", name={name}" if name else ""
             _cli_debug(f"  --> messages[{i}]: role={role}{extra}, content={json.dumps(content, ensure_ascii=False)}")
 
-        # 打印请求参数（隐藏 api_key）
         display_params = {k: v for k, v in params.items() if k != "messages"}
         if "api_key" in display_params:
             display_params["api_key"] = "***"
-        _cli_debug(f"  --> params: {json.dumps(display_params, ensure_ascii=False, indent=None})")
+        params_str = json.dumps(display_params, ensure_ascii=False)
+        _cli_debug(f"  --> params: {params_str})")
 
         req_tokens = self.count_tokens(
             "".join(m.get("content", "") for m in messages)

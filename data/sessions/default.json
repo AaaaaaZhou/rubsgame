@@ -1,0 +1,33 @@
+{
+  "session_id": "default",
+  "bound_persona_file": "",
+  "full_history": [
+    {
+      "role": "user",
+      "content": "hello",
+      "timestamp": 1776528279.2829947,
+      "metadata": {}
+    },
+    {
+      "role": "assistant",
+      "content": "Hello! How can I assist you today?",
+      "timestamp": 1776528279.2829947,
+      "metadata": {}
+    }
+  ],
+  "refined_history": [
+    {
+      "role": "user",
+      "content": "hello",
+      "timestamp": 1776528279.2829947,
+      "metadata": {}
+    },
+    {
+      "role": "assistant",
+      "content": "Hello! How can I assist you today?",
+      "timestamp": 1776528279.2829947,
+      "metadata": {}
+    }
+  ],
+  "session_memories": []
+}
