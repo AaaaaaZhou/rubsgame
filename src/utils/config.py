@@ -158,6 +158,11 @@ class AppConfig:
                     if parsed := _parse_int(val):
                         model_config["max_tokens"] = parsed
 
+            if model_config.get("top_p") is None:
+                if val := os.getenv(f"{prefix}_TOP_P"):
+                    if parsed := _parse_float(val):
+                        model_config["top_p"] = parsed
+
     def _load_yaml_config(self, config_path: str) -> Dict[str, Any]:
         if not os.path.exists(config_path):
             _logger.warning(f"Config file not found: {config_path}")
