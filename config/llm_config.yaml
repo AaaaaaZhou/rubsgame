@@ -20,7 +20,7 @@ models:
   # DeepSeek Reasoner (思考模式，适用于复杂推理)
   # API 文档: https://api-docs.deepseek.com
   deepseek_reasoner:
-    api_key: ""
+    api_key: "sk-25c6be28fb914d4a87deeaf9252ece72"
     base_url: "https://api.deepseek.com"
     model: "deepseek-reasoner"
     temperature: 0.7
@@ -46,7 +46,7 @@ models:
   # MiniMax M2.7 (高性能文本模型，Agent 场景)
   # API 文档: https://platform.minimaxi.com/docs/api-reference/text-chat
   minimax_m2.7:
-    api_key: ""
+    api_key: "sk-api-vZfOCUdDSwcDBLTIVlbXcdjLAryAsw8h5gOzXHeLqGw5VeV9Et4MaodmarJyZFKgbnRYJtvhc6_20NIhAMR-LwofkUHHmHI31LB5-k-437aOW1pqkvGBhc8"
     base_url: "https://api.minimaxi.com"
     model: "M2.7"
     temperature: 1.0
@@ -60,7 +60,7 @@ models:
   # MiniMax M2-her (多角色沉浸扮演，长轮次对话)
   # API 文档: https://platform.minimaxi.com/docs/api-reference/text-chat
   minimax_m2_her:
-    api_key: ""
+    api_key: "sk-api-vZfOCUdDSwcDBLTIVlbXcdjLAryAsw8h5gOzXHeLqGw5VeV9Et4MaodmarJyZFKgbnRYJtvhc6_20NIhAMR-LwofkUHHmHI31LB5-k-437aOW1pqkvGBhc8"
     base_url: "https://api.minimaxi.com"
     model: "M2-her"
     temperature: 1.0
