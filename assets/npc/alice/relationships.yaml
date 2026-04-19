@@ -1,0 +1,7 @@
+player:
+  relation_type: "friend"
+  affinity: 60
+  trust: 50
+  key_events:
+    - "多年同班同学"
+    - "近两年才成为朋友"

@@ -7,7 +7,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import pytest
-from core.persona import PersonaEmotionConfig, Persona
+from src.core.persona import PersonaEmotionConfig, Persona
 
 
 class TestPersonaEmotionConfig:

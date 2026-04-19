@@ -10,9 +10,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import pytest
 from unittest.mock import patch
-from core.loaders import FileReader, YamlFileReader, BaseDataLoader, PersonaLoader, WorldLoader
-from core.persona import Persona
-from core.world_model import WorldKnowledge
+from src.core.loaders import FileReader, YamlFileReader, BaseDataLoader, PersonaLoader, WorldLoader
+from src.core.persona import Persona
+from src.core.world_model import WorldKnowledge
 
 
 class MockFileReader(FileReader):
@@ -403,7 +403,7 @@ class TestIntegration:
     
     def test_persona_and_session_integration(self):
         """测试人设和会话的集成"""
-        from core.session import ConversationSession
+        from src.core.session import ConversationSession
         
         # 创建人设
         mock_yaml_data = {
@@ -424,14 +424,14 @@ class TestIntegration:
             bound_persona_file="integration.yaml"
         )
         
-        assert session.bound_persona_file == "integration.yaml"
+        assert session.bound_npc_id == "integration.yaml"
         
         # 验证人设的情绪配置会影响会话（未来扩展）
         # 目前只是文件名字符串绑定
     
     def test_world_and_memory_integration(self):
         """测试世界观和记忆的集成"""
-        from core.types import MemoryItem
+        from src.core.types import MemoryItem
         
         # 创建世界观
         world = WorldKnowledge(world_name="Integration World")

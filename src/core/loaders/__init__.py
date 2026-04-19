@@ -6,11 +6,13 @@
 from .base import FileReader, YamlFileReader, BaseDataLoader
 from .persona_loader import PersonaLoader
 from .world_loader import WorldLoader
+from .npc_loader import NPCLoader
 
 __all__ = [
     "FileReader",
-    "YamlFileReader", 
+    "YamlFileReader",
     "BaseDataLoader",
     "PersonaLoader",
     "WorldLoader",
+    "NPCLoader",
 ]

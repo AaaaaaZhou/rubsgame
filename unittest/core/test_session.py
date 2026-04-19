@@ -9,8 +9,8 @@ import tempfile
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import pytest
-from core.types import Message, MemoryItem
-from core.session import ConversationSession
+from src.core.types import Message, MemoryItem
+from src.core.session import ConversationSession
 
 
 class TestMessage:
@@ -140,7 +140,7 @@ class TestConversationSession:
         session = ConversationSession(session_id="test-123")
         
         assert session.session_id == "test-123"
-        assert session.bound_persona_file == ""
+        assert session.bound_npc_id == ""
         assert session.full_history == []
         assert session.refined_history == []
         assert session.session_memories == []
@@ -197,7 +197,7 @@ class TestConversationSession:
         data = session.to_dict()
         
         assert data["session_id"] == "test-123"
-        assert data["bound_persona_file"] == "alice.yaml"
+        assert data["bound_npc_id"] == "alice.yaml"
         assert len(data["full_history"]) == 2
         assert len(data["refined_history"]) == 2
         assert len(data["session_memories"]) == 1
@@ -215,7 +215,7 @@ class TestConversationSession:
         restored = ConversationSession.from_dict(data)
         
         assert restored.session_id == original.session_id
-        assert restored.bound_persona_file == original.bound_persona_file
+        assert restored.bound_npc_id == original.bound_npc_id
         assert len(restored.full_history) == len(original.full_history)
         assert len(restored.refined_history) == len(original.refined_history)
         assert len(restored.session_memories) == len(original.session_memories)

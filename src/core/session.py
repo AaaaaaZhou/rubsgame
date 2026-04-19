@@ -26,7 +26,7 @@ class ConversationSession:
             logger: 可选的日志记录器
         """
         self.session_id = session_id
-        self.bound_persona_file = bound_persona_file
+        self.bound_npc_id = bound_persona_file  # 保持兼容：旧会话文件仍用此字段
         self.full_history: List[Message] = []        # 完整历史（永不删除）
         self.refined_history: List[Message] = []     # 精炼历史（用于Prompt）
         self.session_memories: List[MemoryItem] = [] # 会话专属记忆
@@ -77,31 +77,33 @@ class ConversationSession:
     
     def to_dict(self) -> Dict[str, Any]:
         """转换为可序列化的字典
-        
+
         Returns:
             包含会话所有数据的字典
         """
         return {
             "session_id": self.session_id,
-            "bound_persona_file": self.bound_persona_file,
+            "bound_npc_id": self.bound_npc_id,
             "full_history": [msg.to_dict() for msg in self.full_history],
             "refined_history": [msg.to_dict() for msg in self.refined_history],
             "session_memories": [mem.to_dict() for mem in self.session_memories],
         }
-    
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "ConversationSession":
         """从字典还原会话
-        
+
         Args:
             data: 会话数据字典
-            
+
         Returns:
             恢复的ConversationSession对象
         """
+        # 兼容旧字段名 bound_persona_file
+        bound_npc = data.get("bound_npc_id", data.get("bound_persona_file", ""))
         session = cls(
             session_id=data["session_id"],
-            bound_persona_file=data.get("bound_persona_file", "")
+            bound_persona_file=bound_npc
         )
         
         # 恢复消息历史
@@ -152,4 +154,4 @@ class ConversationSession:
     
     def __repr__(self) -> str:
         """详细表示"""
-        return f"ConversationSession(session_id={self.session_id!r}, bound_persona_file={self.bound_persona_file!r})"
+        return f"ConversationSession(session_id={self.session_id!r}, bound_npc_id={self.bound_npc_id!r})"

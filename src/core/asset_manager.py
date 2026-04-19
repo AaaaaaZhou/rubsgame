@@ -9,9 +9,11 @@ from typing import Dict, List, Optional
 from .persona import Persona
 from .world_model import WorldKnowledge, Location
 from .types import MemoryItem
+from .npc import NPCProfile
 from .loaders.base import YamlFileReader
 from .loaders.persona_loader import PersonaLoader
 from .loaders.world_loader import WorldLoader
+from .loaders.npc_loader import NPCLoader
 from ..utils.config import AppConfig
 from ..utils.logger import get_logger
 
@@ -37,8 +39,13 @@ class AssetManager:
             YamlFileReader(),
             self._config.world_dir
         )
+        self._npc_loader = NPCLoader(
+            YamlFileReader(),
+            self._config.npc_dir
+        )
         self._current_persona: Optional[Persona] = None
         self._current_world: Optional[WorldKnowledge] = None
+        self._current_npc: Optional[NPCProfile] = None
         _logger.info("AssetManager initialized")
 
     @classmethod
@@ -123,3 +130,29 @@ class AssetManager:
     def get_persona_emotion_config(self) -> Optional[Persona]:
         """获取当前人设（包含情绪配置）"""
         return self._current_persona
+
+    # ==================== NPC ====================
+
+    def load_npc(self, npc_name: str) -> NPCProfile:
+        """加载完整 NPC 档案（persona + relationships + memories）"""
+        profile = self._npc_loader.load(npc_name)
+        self._current_npc = profile
+        self._current_persona = profile.persona
+        _logger.info(f"Loaded NPC: {npc_name}")
+        return profile
+
+    def get_current_npc(self) -> Optional[NPCProfile]:
+        """获取当前 NPC 档案"""
+        return self._current_npc
+
+    def get_npc_relationship_context(self) -> str:
+        """获取 NPC 关系网上下文文本"""
+        if self._current_npc is None:
+            return ""
+        return self._current_npc.get_relationship_context()
+
+    def get_npc_memory_context(self) -> str:
+        """获取 NPC 私人记忆上下文文本"""
+        if self._current_npc is None:
+            return ""
+        return self._current_npc.get_memory_context()

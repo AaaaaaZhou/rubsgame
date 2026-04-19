@@ -54,17 +54,6 @@ background:
     - "从未去过沿海城市，仅通过影视网络了解"
     - "对大城市的了解停留在表面想象"
 
-relationship_with_player:
-  history:
-    - "多年同班同学"
-    - "近两年才成为朋友"
-  initial_relationship_value: 60
-  trust_level: "中等"
-  interaction_pattern:
-    - "不会主动搭话"
-    - "对方主动时会友好回应"
-    - "熟悉后才会展露更多想法"
-
 speech_style:
   tone: "轻柔温和，略带腼腆"
   vocabulary: "日常但不粗俗"

@@ -111,10 +111,10 @@ class EngineCore:
         """获取或创建会话"""
         session = self._session_mgr.get_session(session_id)
         if session is None:
-            persona_name = ""
-            if self._asset_mgr.get_current_persona():
-                persona_name = self._asset_mgr.get_current_persona().name
-            session = self._session_mgr.create_session(session_id, persona_name)
+            npc_id = ""
+            if self._asset_mgr.get_current_npc():
+                npc_id = self._asset_mgr.get_current_npc().persona.name
+            session = self._session_mgr.create_session(session_id, npc_id)
         return session
 
     def save_session(self, session_id: str) -> None:
@@ -151,8 +151,9 @@ class EngineCore:
 
     # ==================== Delegate Methods ====================
 
-    def load_persona(self, persona_name: str):
-        return self._asset_mgr.load_persona(persona_name)
+    def load_persona(self, npc_name: str):
+        """加载 NPC 档案（persona + relationships + memories）"""
+        return self._asset_mgr.load_npc(npc_name)
 
     def load_world(self, world_name: str):
         return self._asset_mgr.load_world(world_name)

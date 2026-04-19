@@ -18,7 +18,7 @@ class PowerShellInterface:
     COMMANDS = {
         "/save": "保存当前会话",
         "/load": "加载会话 (用法: /load <session_id>)",
-        "/role": "切换人设 (用法: /role <persona_name>)",
+        "/role": "切换NPC档案 (用法: /role <npc_name>)",
         "/world": "加载世界观 (用法: /world <world_name>)",
         "/emotion": "情绪开关 (用法: /emotion toggle|show)",
         "/status": "显示状态",
@@ -113,13 +113,13 @@ class PowerShellInterface:
 
     def _do_role(self, args: list) -> None:
         if not args:
-            print("用法: /role <persona_name>")
+            print("用法: /role <npc_name>")
             return
         try:
-            self._engine.load_persona(args[0])
-            print(f"已加载人设: {args[0]}")
+            profile = self._engine.load_persona(args[0])
+            print(f"已加载NPC: {profile.persona.name} (关系:{len(profile.relationships)}条, 记忆:{len(profile.private_memories)}条)")
         except FileNotFoundError as e:
-            print(f"人设加载失败: {e}")
+            print(f"NPC加载失败: {e}")
 
     def _do_world(self, args: list) -> None:
         if not args:

@@ -63,7 +63,23 @@ class PromptOrchestrator:
                 "content": f"[Character]\n{persona_prompt}"
             })
 
-        # 3. Memory Context
+        # 3. NPC Relationship Context
+        rel_ctx = self._asset.get_npc_relationship_context()
+        if rel_ctx:
+            messages.append({
+                "role": "system",
+                "content": f"[NPC Relationship]\n{rel_ctx}"
+            })
+
+        # 4. NPC Private Memory Context
+        mem_ctx = self._asset.get_npc_memory_context()
+        if mem_ctx:
+            messages.append({
+                "role": "system",
+                "content": f"[NPC Private Memory]\n{mem_ctx}"
+            })
+
+        # 5. Memory Context
         if include_memory and session.session_memories:
             mem_ctx = self._build_memory_context(session.session_memories)
             messages.append({

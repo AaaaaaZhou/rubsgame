@@ -70,6 +70,7 @@ class AppConfig:
         self._current_llm_model = ""
 
         self.persona_dir = "assets/personas/"
+        self.npc_dir = "assets/npc/"
         self.world_dir = "assets/world/"
         self.material_dir = "assets/materials/"
         self.session_dir = "data/sessions/"
@@ -235,6 +236,7 @@ class AppConfig:
     def get_paths_config(self) -> Dict[str, str]:
         return {
             "persona_dir": self.persona_dir,
+            "npc_dir": self.npc_dir,
             "world_dir": self.world_dir,
             "material_dir": self.material_dir,
             "session_dir": self.session_dir,

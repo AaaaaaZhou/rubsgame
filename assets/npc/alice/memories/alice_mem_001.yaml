@@ -1,0 +1,6 @@
+memory_id: "alice_mem_001"
+content: "玩家曾在图书馆帮她找到她想要的那本关于沿海城市的书"
+memory_type: "interaction"
+importance: 7
+emotional_valence: 2
+linked_to: "player"
