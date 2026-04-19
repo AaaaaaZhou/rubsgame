@@ -27,11 +27,18 @@ class PowerShellInterface:
         "/help": "显示帮助",
     }
 
-    def __init__(self, engine: EngineCore):
+    def __init__(self, engine: EngineCore, dev_mode: bool = False):
         self._engine = engine
         self._current_session_id = "default"
         self._emotion_enabled = True
+        self._dev_mode = dev_mode
         self._logger = _logger
+
+    def _is_command_allowed(self, cmd: str) -> bool:
+        """dev_mode=False 时，只允许 /save /load /exit /help 和普通对话"""
+        if self._dev_mode:
+            return True
+        return cmd in ("/save", "/load", "/exit", "/help")
 
     def run_repl(self) -> None:
         """主 REPL 循环"""
@@ -46,7 +53,9 @@ class PowerShellInterface:
                 # 指令解析
                 if user_input.startswith("/"):
                     cmd, args = self._parse_command(user_input)
-                    if cmd == "/exit":
+                    if not self._is_command_allowed(cmd):
+                        self._logger.debug(f"Command blocked in production mode: {cmd}")
+                    elif cmd == "/exit":
                         self._do_exit()
                         break
                     elif cmd == "/help":

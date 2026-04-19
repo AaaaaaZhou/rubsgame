@@ -49,7 +49,7 @@ def main():
             print(f"[Warning] 无法加载世界观 {args.world}: {e}")
 
     # 启动 REPL
-    shell = PowerShellInterface(engine)
+    shell = PowerShellInterface(engine, dev_mode=config.dev_mode)
     shell.run_repl()
 
 
