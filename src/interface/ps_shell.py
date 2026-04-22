@@ -23,6 +23,8 @@ class PowerShellInterface:
         "/emotion": "情绪开关 (用法: /emotion toggle|show)",
         "/status": "显示状态",
         "/sessions": "列出所有会话",
+        "/models": "显示所有可用模型 (dev mode)",
+        "/model": "切换对话模型 (用法: /model <model_name>, dev mode)",
         "/exit": "退出 (自动保存)",
         "/help": "显示帮助",
     }
@@ -74,6 +76,10 @@ class PowerShellInterface:
                         self._do_world(args)
                     elif cmd == "/emotion":
                         self._do_emotion(args)
+                    elif cmd == "/models":
+                        self._do_models()
+                    elif cmd == "/model":
+                        self._do_model(args)
                     else:
                         print(f"未知指令: {cmd}，输入 /help 查看帮助")
                 else:
@@ -146,6 +152,27 @@ class PowerShellInterface:
             print(f"情绪渲染: {'开启' if self._emotion_enabled else '关闭'}")
         elif args[0] == "show":
             print(f"情绪渲染: {'开启' if self._emotion_enabled else '关闭'}")
+
+    def _do_models(self) -> None:
+        config = self._engine._config
+        models = config.get_available_models()
+        current = config.current_llm_model
+        print("可用模型:")
+        for name in models:
+            marker = " ← 当前" if name == current else ""
+            print(f"  • {name}{marker}")
+
+    def _do_model(self, args: list) -> None:
+        if not args:
+            print("用法: /model <model_name>")
+            return
+        model_name = args[0]
+        config = self._engine._config
+        if config.set_current_llm_model(model_name):
+            print(f"已切换模型: {model_name}")
+        else:
+            available = ", ".join(config.get_available_models())
+            print(f"未知模型: {model_name}，可用模型: {available}")
 
     def _print_status(self) -> None:
         status = self._engine.get_status(self._current_session_id)

@@ -26,7 +26,10 @@ class EngineCore:
         self._config = config or AppConfig.get_instance()
         self._session_mgr = SessionManager(self._config.session_dir)
         self._asset_mgr = AssetManager.get_instance()
-        self._orchestrator = PromptOrchestrator(self._asset_mgr)
+        self._orchestrator = PromptOrchestrator(
+            self._asset_mgr,
+            model_name=self._config.current_llm_model
+        )
         self._client_mgr = ClientManager.get_instance()
         self._memory_mgr = None
         _logger.info("EngineCore initialized")
