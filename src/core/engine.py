@@ -28,7 +28,20 @@ class EngineCore:
         self._asset_mgr = AssetManager.get_instance()
         self._orchestrator = PromptOrchestrator(self._asset_mgr)
         self._client_mgr = ClientManager.get_instance()
+        self._memory_mgr = None
         _logger.info("EngineCore initialized")
+
+    def _get_memory_manager(self):
+        """懒加载记忆管理器"""
+        if self._memory_mgr is None:
+            from .memory import MemoryManager, MemoryConfig
+            config = MemoryConfig.from_app_config(self._config)
+            self._memory_mgr = MemoryManager(
+                config=config,
+                asset_manager=self._asset_mgr,
+                client_manager=self._client_mgr
+            )
+        return self._memory_mgr
 
     def chat(
         self,
@@ -127,7 +140,10 @@ class EngineCore:
         """结束会话并保存（退出前调用）"""
         session = self._session_mgr.get_session(session_id)
         if session:
-            # TODO: Phase 5 调用记忆精炼引擎
+            # Phase 5: 调用记忆精炼引擎
+            memory_mgr = self._get_memory_manager()
+            memory_mgr.refine_and_extract(session, force=True)
+            memory_mgr.trigger_extraction(session)
             self._session_mgr.save_session(session)
             _logger.info(f"Session {session_id} finalized and saved")
 

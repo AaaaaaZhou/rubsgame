@@ -262,7 +262,20 @@ class AppConfig:
             "compression_ratio": self.memory_compression_ratio,
             "max_session_memories": self.memory_max_session_memories,
             "auto_refine_on_exit": self.memory_auto_refine_on_exit,
-            "extractor_type": self.memory_extractor_type
+            "extractor_type": self.memory_extractor_type,
+            # Phase 5: 完整的记忆精炼配置（从 YAML 加载）
+            "refine_threshold_tokens": getattr(self, "memory_refine_threshold_tokens", 4000),
+            "refine_max_turns": getattr(self, "memory_refine_max_turns", 20),
+            "extraction_interval": getattr(self, "memory_extraction_interval", 10),
+            "extractor_llm_model": getattr(self, "memory_extractor_llm_model", "deepseek_reasoner"),
+            "max_memories_per_extraction": getattr(self, "memory_max_memories_per_extraction", 5),
+            "memory_priority_threshold": getattr(self, "memory_priority_threshold", 5),
+            "max_world_memories": getattr(self, "memory_max_world_memories", 50),
+            "balance_strategy": {
+                "keep_recent_turns": getattr(self, "memory_balance_keep_recent_turns", 10),
+                "keep_system": getattr(self, "memory_balance_keep_system", True),
+                "compress_middle": getattr(self, "memory_balance_compress_middle", True),
+            },
         }
 
     def get_logging_config(self) -> Dict[str, Any]:

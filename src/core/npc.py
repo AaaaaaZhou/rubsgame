@@ -114,9 +114,12 @@ class NPCProfile:
             return "No relationship data."
         lines = []
         for obj_id, rel in self.relationships.items():
-            lines.append(
-                f"- {rel.object_id}: {rel.relation_type}, affinity={rel.affinity}, trust={rel.trust}"
-            )
+            base = f"- {rel.object_id}: {rel.relation_type}, affinity={rel.affinity}, trust={rel.trust}"
+            if rel.key_events:
+                events_str = "; ".join(rel.key_events)
+                lines.append(f"{base} ({events_str})")
+            else:
+                lines.append(base)
         return "\n".join(lines)
 
     def to_dict(self) -> Dict[str, Any]:

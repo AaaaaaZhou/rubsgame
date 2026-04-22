@@ -4,3 +4,25 @@
 # 开发模式
 # true: LLM 通信详情（请求/响应）打印到 CLI；false: 仅显示对话和情绪内容
 dev_mode: true
+
+# 记忆精炼引擎配置 (Phase 5)
+memory:
+  # 精炼触发阈值
+  refine_threshold_tokens: 4000    # Token 超限阈值
+  refine_max_turns: 20             # 对话轮次超限阈值
+
+  # 提取配置
+  extraction_interval: 10          # 记忆提取间隔（轮次）
+  extractor_llm_model: "deepseek_reasoner"  # 用于提取的模型
+  max_memories_per_extraction: 5   # 每次提取的最大记忆数
+  memory_priority_threshold: 5     # 记忆优先级阈值（0-10）
+
+  # 记忆管理
+  max_session_memories: 20         # 最大会话记忆数
+  max_world_memories: 50           # 最大全局记忆数
+
+  # 平衡策略
+  balance_strategy:
+    keep_recent_turns: 10          # 保留最近 N 轮
+    keep_system: true             # 是否保留系统消息
+    compress_middle: true          # 是否压缩中间部分

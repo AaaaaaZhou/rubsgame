@@ -154,45 +154,94 @@ class Persona:
         Returns:
             系统提示词字符串
         """
-        parts = []
+        sections = []
 
+        # Basic identity
         name = yaml_data.get("name", "")
-        gender = yaml_data.get("gender", "")
-        age = yaml_data.get("age", "")
         identity = yaml_data.get("identity", "")
+        sections.append(f"You are {name}. {identity}")
 
-        if name:
-            parts.append(f"You are {name}.")
-        if gender:
-            parts.append(f"Gender: {gender}.")
-        if age:
-            parts.append(f"Age: {age}.")
-        if identity:
-            parts.append(f"Identity: {identity}.")
-
+        # Background section
         background = yaml_data.get("background", {})
         if isinstance(background, dict):
-            education = background.get("education", "")
-            dreams = background.get("dreams", [])
+            bg_parts = []
+            if education := background.get("education", ""):
+                bg_parts.append(f"Education: {education}")
+            if dreams := background.get("dreams", []):
+                dream_str = ", ".join(dreams) if isinstance(dreams, list) else str(dreams)
+                bg_parts.append(f"Dreams: {dream_str}")
+            if limitations := background.get("limitations", []):
+                limit_str = ", ".join(limitations) if isinstance(limitations, list) else str(limitations)
+                bg_parts.append(f"Limitations: {limit_str}")
+            if bg_parts:
+                sections.append(f"\n## Background\n" + "\n".join(bg_parts))
 
-            if education:
-                parts.append(f"Education: {education}")
-            if dreams:
-                parts.append(f"Dreams: {', '.join(dreams) if isinstance(dreams, list) else dreams}")
-        elif isinstance(background, str):
-            parts.append(f"Background: {background}")
-
+        # Personality section
         personality = yaml_data.get("personality", {})
         if isinstance(personality, dict):
-            core_traits = personality.get("core_traits", [])
-            if core_traits:
+            perf_parts = []
+            if core_traits := personality.get("core_traits", []):
                 traits_str = ", ".join(core_traits) if isinstance(core_traits, list) else core_traits
-                parts.append(f"Personality traits: {traits_str}")
+                perf_parts.append(f"Core traits: {traits_str}")
+            prefs = personality.get("preferences", {})
+            if isinstance(prefs, dict):
+                if likes := prefs.get("likes", []):
+                    perf_parts.append(f"Likes: {', '.join(likes)}")
+                if dislikes := prefs.get("dislikes", []):
+                    perf_parts.append(f"Dislikes: {', '.join(dislikes)}")
+            if perf_parts:
+                sections.append(f"\n## Personality\n" + "\n".join(perf_parts))
 
-        if not parts:
-            return f"You are {name or 'a character'}."
+        # Speech style section
+        speech_style = yaml_data.get("speech_style", {})
+        if isinstance(speech_style, dict):
+            ss_parts = []
+            if tone := speech_style.get("tone", ""):
+                ss_parts.append(f"Tone: {tone}")
+            if vocab := speech_style.get("vocabulary", ""):
+                ss_parts.append(f"Vocabulary: {vocab}")
+            if features := speech_style.get("features", []):
+                ss_parts.append(f"Features: {', '.join(features)}")
+            if ss_parts:
+                sections.append(f"\n## Speech Style\n" + "\n".join(ss_parts))
 
-        return " ".join(parts)
+        # Behaviors section
+        behaviors = yaml_data.get("behaviors", {})
+        if isinstance(behaviors, dict):
+            beh_parts = []
+            if conflict := behaviors.get("conflict_response", {}):
+                desc = conflict.get("description", "") if isinstance(conflict, dict) else conflict
+                if desc:
+                    beh_parts.append(f"Conflict response: {desc}")
+            if social := behaviors.get("social_interaction", {}):
+                desc = social.get("description", "") if isinstance(social, dict) else social
+                if desc:
+                    beh_parts.append(f"Social interaction: {desc}")
+            if beh_parts:
+                sections.append(f"\n## Behaviors\n" + "\n".join(beh_parts))
+
+        # Mood system section
+        mood_system = yaml_data.get("mood_system", {})
+        if isinstance(mood_system, dict):
+            mood_parts = []
+            if baseline := mood_system.get("baseline"):
+                mood_parts.append(f"Baseline mood: {baseline}")
+            factors = mood_system.get("factors", {})
+            if isinstance(factors, dict):
+                if pos := factors.get("positive", []):
+                    mood_parts.append(f"Positive factors: {', '.join(pos)}")
+                if neg := factors.get("negative", []):
+                    mood_parts.append(f"Negative factors: {', '.join(neg)}")
+            if mood_parts:
+                sections.append(f"\n## Mood System\n" + "\n".join(mood_parts))
+
+        # Topics of interest
+        topics = yaml_data.get("topics_of_interest", [])
+        if topics:
+            topics_str = ", ".join(topics) if isinstance(topics, list) else str(topics)
+            sections.append(f"\n## Topics of Interest\n{topics_str}")
+
+        return "\n".join(sections) if sections else f"You are {name or 'a character'}."
 
     @staticmethod
     def _create_emotion_config(yaml_data: Dict[str, Any]) -> PersonaEmotionConfig:
