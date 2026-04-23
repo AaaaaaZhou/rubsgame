@@ -67,7 +67,11 @@ class AppConfig:
 
         self._llm_models: Dict[str, Dict[str, Any]] = {}
         self._default_llm_model = "deepseek-reasoner"
+        self._refine_model = "deepseek-reasoner"
         self._current_llm_model = ""
+
+        self.chat_model = "deepseek-reasoner"
+        self.refine_model = "deepseek-reasoner"
 
         self.persona_dir = "assets/personas/"
         self.npc_dir = "assets/npc/"
@@ -122,14 +126,17 @@ class AppConfig:
     def _load_llm_config(self, model_name: Optional[str]):
         llm_config = self._load_yaml_config(DEFAULT_LLM_CONFIG_PATH)
         self._llm_models = llm_config.get("models", {})
-        self._default_llm_model = llm_config.get("default_model", "deepseek-reasoner")
+
+        # 从 settings.yaml 读取 chat_model 和 refine_model
+        self._default_llm_model = getattr(self, 'chat_model', 'deepseek-reasoner')
+        self._refine_model = getattr(self, 'refine_model', 'deepseek-reasoner')
 
         if model_name and model_name in self._llm_models:
             self._current_llm_model = model_name
         else:
             self._current_llm_model = self._default_llm_model
 
-        _logger.info(f"Loaded {len(self._llm_models)} LLM models, default: {self._default_llm_model}")
+        _logger.info(f"Loaded {len(self._llm_models)} LLM models, chat: {self._default_llm_model}, refine: {self._refine_model}")
 
         self._apply_llm_env_overrides()
 
@@ -214,6 +221,10 @@ class AppConfig:
     def current_llm_model(self) -> str:
         return self._current_llm_model
 
+    @property
+    def refine_llm_model(self) -> str:
+        return self._refine_model
+
     def get_llm_config(self, model_name: Optional[str] = None) -> Dict[str, Any]:
         if model_name is None:
             model_name = self._current_llm_model
@@ -267,7 +278,7 @@ class AppConfig:
             "refine_threshold_tokens": getattr(self, "memory_refine_threshold_tokens", 4000),
             "refine_max_turns": getattr(self, "memory_refine_max_turns", 20),
             "extraction_interval": getattr(self, "memory_extraction_interval", 10),
-            "extractor_llm_model": getattr(self, "memory_extractor_llm_model", "deepseek_reasoner"),
+            "extractor_llm_model": getattr(self, "refine_llm_model", self._refine_model),
             "max_memories_per_extraction": getattr(self, "memory_max_memories_per_extraction", 5),
             "memory_priority_threshold": getattr(self, "memory_priority_threshold", 5),
             "max_world_memories": getattr(self, "memory_max_world_memories", 50),

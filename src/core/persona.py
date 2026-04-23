@@ -159,7 +159,18 @@ class Persona:
         # Basic identity
         name = yaml_data.get("name", "")
         identity = yaml_data.get("identity", "")
-        sections.append(f"You are {name}. {identity}")
+        gender = yaml_data.get("gender", "")
+        age = yaml_data.get("age")
+
+        # Build basic description
+        basic_parts = [f"You are {name}"]
+        if gender:
+            basic_parts.append(gender)
+        if age is not None:
+            basic_parts.append(f"{age} years old")
+        if identity:
+            basic_parts.append(identity)
+        sections.append(". ".join(basic_parts))
 
         # Background section
         background = yaml_data.get("background", {})
@@ -175,6 +186,8 @@ class Persona:
                 bg_parts.append(f"Limitations: {limit_str}")
             if bg_parts:
                 sections.append(f"\n## Background\n" + "\n".join(bg_parts))
+        elif isinstance(background, str) and background:
+            sections.append(f"\n## Background\n{background}")
 
         # Personality section
         personality = yaml_data.get("personality", {})

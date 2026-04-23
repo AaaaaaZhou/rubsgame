@@ -17,7 +17,11 @@ def test_config_loads_models():
 
 
 def test_config_default_model():
-    assert config.default_llm_model == "deepseek_reasoner"
+    assert config.default_llm_model == "minimax_m2_her"
+
+
+def test_config_refine_model():
+    assert config.refine_llm_model == "deepseek_reasoner"
 
 
 def test_config_get_llm_config():
