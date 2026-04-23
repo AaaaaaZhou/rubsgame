@@ -47,7 +47,7 @@ models:
   # API 文档: https://platform.minimaxi.com/docs/api-reference/text-chat
   minimax_m2.7:
     api_key: ""
-    base_url: "https://api.minimaxi.com"
+    base_url: "https://api.minimaxi.com/v1"
     model: "M2.7"
     temperature: 1.0
     max_tokens: 2048
@@ -61,7 +61,7 @@ models:
   # API 文档: https://platform.minimaxi.com/docs/api-reference/text-chat
   minimax_m2_her:
     api_key: ""
-    base_url: "https://api.minimaxi.com"
+    base_url: "https://api.minimaxi.com/v1"
     model: "M2-her"
     temperature: 1.0
     top_p: 0.95
@@ -78,4 +78,4 @@ models:
       - "sample_message_ai"
 
 # 默认模型配置
-default_model: "deepseek_reasoner"
+default_model: "minimax_m2_her"
