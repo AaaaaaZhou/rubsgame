@@ -35,6 +35,10 @@ def main():
     # 初始化引擎
     engine = EngineCore(config)
 
+    # dev mode 下默认加载导游 NPC（用于世界检索测试）
+    if config.dev_mode and not args.persona:
+        args.persona = "guide"
+
     # 可选：预加载资源和会话
     if args.persona:
         try:
