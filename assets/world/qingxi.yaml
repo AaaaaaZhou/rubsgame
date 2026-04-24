@@ -1,0 +1,304 @@
+# ============================================================
+# 清溪镇 · 世界观数据
+# 西南河谷小城，人口约13-16万，以清溪河谷为轴线
+# 供中学生活动的城市公共设施与近郊景点
+# ============================================================
+
+# -------------------- 全局信息 --------------------
+world_name: 清溪镇
+
+# -------------------- 全局记忆 --------------------
+global_memories:
+  # 城市概况
+  - content: "清溪镇是西南地区河谷型小城，城区沿清溪河谷分布，人口约13-16万，以农业为主，节奏悠闲，民风质朴"
+    priority: 9
+    tags: ["city_overview", "geography", "basic_info"]
+
+  - content: "清溪镇城区分为老城区（清溪西岸）和新城区（清溪东岸）两部分，老城街巷密集，新城现代建筑为主，以清溪河为轴线东西展开"
+    priority: 8
+    tags: ["city_overview", "urban_structure"]
+
+  - content: "清溪镇有两所高中（省重点清溪中学在老城，一所普通高中在新城）、多所初中和小学；高中以住校生为主，初中以走读生为主"
+    priority: 8
+    tags: ["education", "school", "student_life"]
+
+  - content: "清溪镇中学生活动集中在老城区——老街、河边步道、各类小店；新城商业综合体是周末主要去处"
+    priority: 7
+    tags: ["student_life", "activity_area"]
+
+  - content: "清溪镇无大型游乐园、展馆或热门景区，近郊自然景点是中学生周末主要去处：清溪峡、桐子坡、回龙桥、竹林骑行径、松林观景台"
+    priority: 8
+    tags: ["tourism", "suburban_spots", "student_life"]
+
+  - content: "清溪河发源于城北山区，是城内主要河流，水量不大但水质清澈，贯穿城区后向南流向郊外农田"
+    priority: 7
+    tags: ["geography", "river", "qingxi_river"]
+
+  - content: "清溪镇气候属于亚热带季风气候，夏季闷热多雨，冬季温和，四季皆宜户外活动；暑假期间学生多结伴去近郊避暑纳凉"
+    priority: 6
+    tags: ["climate", "seasonal"]
+
+  - content: "清溪镇老城有一座清代石桥名为回龙桥，桥头有古黄葛树，是城南标志性地点；端午节前后清溪河段有龙舟活动"
+    priority: 7
+    tags: ["cultural_heritage", "bridge", "dragon_boat"]
+
+  - content: "清溪镇夜生活较为平淡，夜市集中在老街，奶茶店和烧烤摊是中学生晚间主要社交场所"
+    priority: 6
+    tags: ["nightlife", "social", "student_life"]
+
+  - content: "清溪镇松林观景台位于城北山顶，是学生口碑最好的秘密地点，可看日落和星空，无光污染"
+    priority: 7
+    tags: ["suburban_spots", "night_view", "secret_spot"]
+
+# -------------------- 地点列表 --------------------
+locations:
+
+  # ===== 核心地理 =====
+  - name: 清溪（城中小河）
+    description: "清溪是穿城而过的小河流，发源于城北山区，全长约十余公里，贯穿城区后向南汇入郊外灌溉渠。河面宽约8-15米，水深多在1米以内，河床以青石和细沙为主，夏季丰水期水流稍急，其余时节平缓清浅。河岸两侧修了平整的石栏杆和柳树护堤，构成清溪镇最具代表性的城市景观带。河中常见白鹭低飞捕食，岸边常有村民洗衣、孩童戏水。是中学生放学后纳凉、骑行、散步的日常去处。"
+    npcs: []
+    properties:
+      type: "natural_water"
+      season: "all_year"
+      activity: "walk,bike,chat,swim,photo"
+
+  - name: 清溪峡
+    description: "清溪峡位于城北约2.5公里处，是清溪上游收窄形成的峡谷地形。两侧青石崖壁高约十余米，壁面攀附着苔藓、野蕨和小型藤蔓，溪水在峡中穿流，清澈见底，偶有深潭可见鱼群。峡口处残存一座清代石砌水磨坊遗迹，磨坊石墙斑驳，屋顶已塌，仅存框架结构，桥面长满杂草。夏季峡中气温比城区低3-4度，是纳凉避暑的好去处。沿途有石板山路，需步行约20分钟可达。适合徒步探险、户外写生、溪边捉蟹、林间摄影。中学生常结伴来此秋游或暑期避暑，也是春天踏青的热门目的地。"
+    npcs: []
+    properties:
+      type: "natural_canyon"
+      distance: "2.5km_north"
+      activity: "hiking,sketching,photography,swim,explore"
+      season: "spring,summer,autumn"
+
+  - name: 桐子坡
+    description: "桐子坡是城西一座不高的独立山丘，顶部有一棵树龄超百年的老桐子树，树干粗壮、枝叶繁茂，是清溪镇标志性古树。坡顶视野开阔，可俯瞰整个河谷和半个老城，天气晴好时能看到清溪河蜿蜒向南的走势。坡上保留了部分荒废梯田，春末满坡野花（以格桑花和野菊为主），秋冬季枯黄但地形起伏有致。山顶有一座简易石亭，供行人歇脚遮荫。石板小路约15分钟可登顶，难度低，适合各年龄段。是周末踏青、拍照、写生、全城俯瞰的热门地；也是春天放风筝的好去处。中学生春秋季结伴来此活动居多。"
+    npcs: []
+    properties:
+      type: "hillside_park"
+      distance: "1.5km_west"
+      activity: "hiking,picnic,photography,sketching,kite"
+      season: "spring,autumn"
+
+  - name: 回龙桥
+    description: "回龙桥是城南清溪汇合处的一座三拱石桥，建于清代，石材以青石为主，桥墩雕有简单水兽纹样，桥面石板被岁月打磨得光滑反光。桥头有一棵粗壮的百年古黄葛树，根系盘绕桥基，夏季树荫浓密遮蔽桥面。桥下水面因地势开阔而流速平缓，常有村民在台阶上洗衣洗菜。沿桥向南有一条碎石古道，尽头是小型回龙寺（一进院落，正殿供观音，香火不盛，无商业摊点）。端午前后若遇龙舟活动，桥上下游河段是主要观赛点。适合散步、古桥速写、放风筝、参观古寺。中学生常骑车来此，春天尤适宜。"
+    npcs: []
+    properties:
+      type: "heritage_bridge"
+      distance: "1km_south"
+      activity: "walk,sketch,kite,temple_visit"
+      season: "all_year"
+
+  - name: 竹林骑行径
+    description: "竹林骑行径位于新城区东侧山脚，由一条废弃灌溉渠改造而成，全长约3公里，路面平整以水泥硬化为主，道旁两侧密植慈竹，竹冠交错形成绿色隧道，夏季竹林内气温凉爽。骑行径终点是一片面积不大的竹林茶园，茶园内有竹亭可品茶休憩，茶叶为本地产，制作粗糙但新鲜。沿途无商业设施，需自带饮水。适合山地骑行、慢跑、竹林避暑、茶园小憩。中学生多在周末下午骑行往返，也有人在茶园里写作业或和同学聊天。"
+    npcs: []
+    properties:
+      type: "bike_trail"
+      distance: "2km_east"
+      activity: "bike,jog,tea,chat"
+      season: "spring,summer,autumn"
+
+  - name: 松林观景台
+    description: "松林观景台位于城北山顶，车行约10分钟至山脚后需步行石阶约20分钟可达。山上有一小片马尾松林，林相整齐，地面铺有薄薄松针，踩踏无声。林间搭有一座木平台，约可容纳二十余人，平台边缘有几处石凳。平台视野开阔，正对西方河谷方向，傍晚日落时天际线层次丰富；夜间光污染极少，晴夜可见满天星斗，是清溪镇最适合观星的地方。该地点在学生中口碑最佳但鲜有成年人知道，被称为本地'秘密基地'。适合夜观星空、晨间读书、团体游戏、情侣约会。春夏秋三季均有人前往，冬季夜间因山上较冷而人迹稀少。"
+    npcs: []
+    properties:
+      type: "hilltop_viewpoint"
+      distance: "3km_north"
+      activity: "stargazing,reading,group_game,date"
+      season: "spring,summer,autumn"
+
+  # ===== 老城核心 =====
+  - name: 老街
+    description: "老街是清溪镇历史最悠久的街道，全长约600米，沿清溪西岸延伸，路面以青石板为主，两侧店铺密集，以两层木结构瓦房为主，间有民国时期的砖砌骑楼。法梧或黄葛树沿街排列，树荫在夏日几乎遮蔽整条街道，是老城最凉爽的步行空间。店铺经营日杂、餐饮、茶馆、书店（以教辅为主）、小卖部等，烟火气浓厚。街道两端分别连接老城入口桥和滨江公园入口。走读中学生放学后习惯顺路在老街买零食、逛书店或在茶馆蹭 WiFi 做作业。晚间部分店铺延时有烧烤摊位，是夜间主要社交场所之一。"
+    npcs: []
+    properties:
+      type: "commercial_street"
+      district: "old_town"
+      activity: "shop,chat,study,food,evening"
+      season: "all_year"
+
+  - name: 老街茶馆
+    description: "老街深处分布着三四家老式茶馆，门脸不大，室内摆有竹椅方桌，墙角有老式收音机常年播放评书或新闻。茶馆提供绿茶、花茶和简单的瓜子花生，消费便宜（绿茶3元一杯），有 WiFi。店内中老年茶客居多，但因收费低、环境安静，也有中学生来此写作业或约朋友聊天打牌。下午放学后常能见到三两学生占一张桌子做作业。茶馆是体验老城慢节奏生活的典型场所，店主普遍和善，不驱赶久坐客人。夏天茶馆会把竹椅搬到街巷里，形成半露天的茶座。"
+    npcs: []
+    properties:
+      type: "teahouse"
+      district: "old_town"
+      activity: "study,chat,tea,wi_fi"
+      season: "all_year"
+
+  - name: 老街书店
+    description: "老街唯一一家书店，门脸约一间门面，以销售教辅资料为主，兼卖部分经典文学和武侠小说。店内书架拥挤，过道狭窄，教辅书从初一覆盖到高三各科。店主是一位五十多岁的中年人，态度和气，有时会给熟客打折。书店二楼有一小空间可供坐下翻看，但通常被学生占满做作业。周末是高峰期，常有学生结伴来购买教辅或借阅闲书。课外书以金庸、古龙为主，也有少量日本漫画。买书后可要求店主盖上书店印章（印着店名），是该校学生的集体回忆之一。"
+    npcs: []
+    properties:
+      type: "bookstore"
+      district: "old_town"
+      activity: "buy_books,study,read"
+      season: "all_year"
+
+  - name: 滨江步道
+    description: "滨江步道沿清溪两岸铺设，是清溪镇最重要的公共休闲空间。西岸步道较长（约1.5公里），东岸步道较短（约800米），两岸以清溪桥、回龙桥等数座小桥连通。步道以水泥硬化为主，临水侧设有石栏杆，间隔种有柳树和桃花。傍晚后是步道最热闹的时段，走读学生放学骑车绕道、居民散步、老人遛狗各得其所。步道两侧设有若干石凳和小广场，节假日有流动小贩摆摊。夏季夜晚纳凉的人最多，有时能在步道上看到萤火虫。住校高中生放月假时也常来步道骑车或散步。"
+    npcs: []
+    properties:
+      type: "riverside_promenade"
+      district: "both_sides"
+      activity: "walk,bike,chat,evening,summer_cool"
+      season: "all_year"
+
+  - name: 滨江公园
+    description: "滨江公园位于清溪西岸、老街南端出口处，是清溪镇最老的市政公园。公园呈带状沿河展开约400米，内有几棵大榕树和一片草坪，设有简单的石桌石凳和一座小亭。公园入口有一座新建的牌坊，刻有'滨江公园'四字。白天以老人打太极、遛鸟为主，傍晚后学生和年轻人增多。节假日在草坪上能见到放风筝、踢球的孩子们。公园最热闹的时段是夏日夜晚和周末下午。由于紧邻老街入口，学生来去顺路，是放学后和假期的日常集合点之一。"
+    npcs: []
+    properties:
+      type: "riverside_park"
+      district: "old_town"
+      activity: "walk,kite,football,evening,chill"
+      season: "all_year"
+
+  - name: 小河滩
+    description: "小河滩是清溪中段一处天然浅水区，位于老城东侧河岸，距滨江步道约50米岔路可达。河滩由上游冲积形成，枯水期河床露出大片鹅卵石和浅滩，水深仅及脚踝；丰水期水面扩大但仍可蹚水。是城区内唯一可以安全玩水的地点，夏天放学后常聚集十余名中小学生在河滩边玩水、扔石子、捉小鱼小虾。岸边有大石头可以坐下换鞋，也有小片沙滩适合搭沙堡。由于靠近学校，走读初中生是主要使用人群，周末则有各年龄段学生。家长通常不陪同，高年级学生会帮忙照看低年级孩子。"
+    npcs: []
+    properties:
+      type: "river_beach"
+      district: "old_town"
+      activity: "swim,play_water,stone_skip,kid_favorite"
+      season: "summer_only"
+
+  # ===== 教育设施 =====
+  - name: 清溪中学
+    description: "清溪中学是清溪镇的省级示范高中，位于老城区核心位置，占地约50亩，校内有标准400米塑胶跑道田径场、篮球场（4块）、羽毛球场地和食堂。教学楼为五层建筑，宿舍楼可容纳约2000名住校生。学生以住校为主，周末部分学生离校返家。因管理相对开放，放学后至晚自习前（约16:30-19:00）住校生可在校内自由活动，操场和篮球场是主要去处。校外有一条小道直通老街，学生常顺路买零食再返回。校内树木较多，以榕树和玉兰为主，夏季树荫浓密，校园氛围严谨而安静。"
+    npcs: []
+    properties:
+      type: "high_school"
+      district: "old_town"
+      student_type: "boarding"
+      activity: "sports,study,self_study"
+      season: "all_year"
+
+  - name: 新城高中
+    description: "新城高中位于新城区东部，是一所普通高中，建校历史较短（约15年），硬件设施较新。校园面积与清溪中学相近，有400米跑道体育场和室内体育馆各一座。住校生比例略低于清溪中学，管理模式相近。由于位于新城，周边商业设施较新，距离竹林骑行径约15分钟步行距离，部分学生下午结伴骑车。放学后校门口有小吃摊位摆卖，是该校学生的独特回忆。"
+    npcs: []
+    properties:
+      type: "high_school"
+      district: "new_town"
+      student_type: "boarding"
+      activity: "sports,study,after_snack"
+      season: "all_year"
+
+  - name: 县图书馆
+    description: "县图书馆位于老城区边缘，是一栋三层砖混建筑，藏书约8万册，以文学、历史、农业技术和儿童读物为主。设有自习室（约60座），提供 WiFi，夏季有空调，是学生写作业和复习的好去处。一楼有少儿阅览区，节假日有较多中小学生；二楼自习室相对安静，三楼为期刊和地方文献区。图书馆前有一小片空地，停放自行车方便。每周六下午常能见到约二十余名学生在自习室做作业或复习。馆内气氛安静，适合深度阅读和自习，但节假日因人流较多而略显嘈杂。"
+    npcs: []
+    properties:
+      type: "library"
+      district: "old_town"
+      activity: "study,read,wi_fi,exam_prep"
+      season: "all_year"
+
+  - name: 少年宫
+    description: "少年宫位于老城边缘，是清溪镇唯一的青少年校外教育机构，内设绘画班、书法班、乐器班（以电子琴和吉他为主）和一个小型计算机教室。假期是少年宫最热闹的时段，开设暑期班，招生对象以小学生和初中生为主。学期内周末有常设班，报名需提前。绘画和乐器是最受欢迎的项目。少年宫建筑老旧，教室不大，但教师认真负责。接送孩子的家长常在门口等候，形成一个临时的家长社交圈。初中生参加少年宫班级的比例随年级升高而下降，初二以后多数学生会退班专注学业。"
+    npcs: []
+    properties:
+      type: "youth_palace"
+      district: "old_town"
+      activity: "art,music,computer,summer_camp"
+      season: "holiday_only"
+
+  # ===== 体育设施 =====
+  - name: 体育中心
+    description: "体育中心位于新城区，是清溪镇最新、设施最全的公共体育场所，内设室内篮球馆（约可容纳300名观众）、羽毛球馆、乒乓球室和一座标准游泳池（25米，6条道）。游泳馆夏季开放，其余场馆全年营业。收费标准略高于学校体育设施（篮球半场30元/小时，游泳40元/次），对学生有一定门槛。傍晚和周末是黄金时段，常能见到结伴而来的高中生和大学生。体育中心是县城青年最重要的运动社交场所，也是校队训练借用场地的主要选择。"
+    npcs: []
+    properties:
+      type: "sports_center"
+      district: "new_town"
+      activity: "basketball,swimming,batminton,table_tennis"
+      season: "all_year"
+
+  - name: 老城社区篮球场
+    description: "老城社区篮球场分布在老城区的三四处居民区内，是露天的水泥地球场，篮板和球架老旧但基本完好。属于半正式运动场地，不收费用，先到先得。其中最大的一处位于老街北端出口附近，有两块标准篮球半场，下午放学后至天黑前常有人约球，以初中生和高中生为主，傍晚后转为成年人使用。另一处位于滨江公园北侧河岸，规模较小，围观的人较多，是街球文化的聚集地。是清溪镇草根篮球的核心场所。"
+    npcs: []
+    properties:
+      type: "community_basketball_court"
+      district: "old_town"
+      activity: "basketball,pickup_game"
+      season: "spring,summer,autumn"
+
+  # ===== 商业与公共空间 =====
+  - name: 商业综合体
+    description: "商业综合体位于新城区中心，是清溪镇目前唯一的现代化商业建筑，共三层：一层为超市和餐饮（小肥羊、奶茶店、面馆），二层为服装和日用品，三层为影院和电玩城。影院有3个放映厅，放映主流国产片和好莱坞大片，票价约30-40元，是中学生周末聚会的首选场所。电玩城有娃娃机、射击游戏和几台格斗游戏机。综合体前有大片停车位，周末人流尚可，平日较为冷清。由于新城缺乏其他娱乐设施，商业综合体在周末和节假日几乎是中学生聚会的唯一商业目的地。放学后也有走读学生会顺路来买奶茶或逛超市。"
+    npcs: []
+    properties:
+      type: "shopping_mall"
+      district: "new_town"
+      activity: "movie,food,game,shopping,hangout"
+      season: "all_year"
+
+  - name: 老街夜市
+    description: "老街夜市在傍晚六点后逐渐出摊，以老街中段约200米范围为主。摊位以烧烤、铁板烧、凉面、奶茶、水果摆卖为主，是清溪镇夜晚最具烟火气的场所。走读学生放学后通常在夜市买小吃再回家；住校高中生放月假返城当晚常结伴逛夜市。夏季夜市持续至深夜十一二点，冬季则约九点收摊。街道两侧店铺有时会把桌椅搬到街上，形成临时的大排档。老街夜市是体验清溪镇本地生活气息的最佳地点，也是同学朋友聚餐聊天的主要场所之一。"
+    npcs: []
+    properties:
+      type: "night_market"
+      district: "old_town"
+      activity: "food,hangout,evening,dinner"
+      season: "spring,summer,autumn"
+
+  - name: 奶茶店
+    description: "清溪镇现有奶茶店约七八家，分布在新老城区。老街有两家规模较小的传统奶茶店，饮品以冲调奶茶为主，价格便宜（约6-10元），是走读初中生的主要聚集地。新城商业综合体内有一家连锁奶茶品牌，装修较好，价格略高（约12-18元），是高中生和大学生聚会的首选。奶茶店是中学生课后社交的核心场所——约同学做作业、聊天、玩游戏、庆生等几乎都在奶茶店进行。每到放学后和周末下午，各奶茶店基本满座，以15-18岁的中学生为主力客群。"
+    npcs: []
+    properties:
+      type: "milk_tea_shop"
+      district: "both"
+      activity: "chat,study,games,celebration,hangout"
+      season: "all_year"
+
+  - name: KTV
+    description: "清溪镇现有两家小型KTV，分布在老城区边缘，各有包间约10-15间，规模不大，设备一般。消费以中低档为主，小包约50-80元/小时（含音效一般），大包约100-150元/小时。学生群体以高中生为主，通常在节假日或同学生日时约伴前往，以3-8人规模居多。KTV内不提供餐食，仅有饮料和小零食。未成年人进入受监管限制，部分KTV在法定节假日允许未成年人在成年人陪同下消费。寒暑假是学生KTV的高峰期。"
+    npcs: []
+    properties:
+      type: "ktv"
+      district: "old_town"
+      activity: "karaoke,birthday,hangout"
+      season: "holiday,weekend"
+
+  - name: 台球厅
+    description: "清溪镇现有两家台球厅，均位于老城区边缘，以经营中式黑八台球为主，兼有少量乒乓球台。台球收费约20-30元/小时，在校生和待业青年是主要客群。台球厅环境较嘈杂，烟雾较重，家长通常不鼓励孩子去此类场所。但台球厅是部分高中生课后社交的重要场所，尤其在冬季寒冷时比户外活动更受欢迎。节假日和周末晚间是高峰期，常能见到学生结伴打球到晚上。"
+    npcs: []
+    properties:
+      type: "billiards_hall"
+      district: "old_town"
+      activity: "billiards,hangout,social"
+      season: "all_year"
+
+  - name: 网吧
+    description: "清溪镇有两家网吧，位于老城区边缘，均为小型营业场所，机器数量约40-60台。受未成年人上网监管限制，网吧要求身份证登记，未成年人平时（周一至周五）不得进入，节假日和寒暑假有部分时段向未成年人开放（通常需成年人陪同或持有特殊许可）。对于有电脑游戏需求的学生，网吧仍是周末和假期的主要去处之一，但随着手机游戏的普及，网吧客流已明显下降。部分高中生会在假期约同学组队打游戏。"
+    npcs: []
+    properties:
+      type: "internet_cafe"
+      district: "old_town"
+      activity: "gaming,social"
+      season: "holiday,weekend"
+      note: "restricted_for_minors_on_weekdays"
+
+  # ===== 自然/文艺场所 =====
+  - name: 回龙寺
+    description: "回龙寺位于城南回龙桥南端约1公里处，是一座小型佛教寺院，仅一进院落，正殿供观音菩萨。寺院规模小，无商业化运营，香火不盛，以本地老人拜佛为主。寺内有几棵老桂花树，秋季桂花开时香气浓郁。节假日偶有学生结伴来参观，但并无强宗教氛围。寺院免费对外开放，无斋饭供应，参观时间约半小时内。由于距离城区不远，骑车可轻松到达，是春游或周末散步的目的地之一。"
+    npcs: []
+    properties:
+      type: "temple"
+      distance: "1km_south"
+      activity: "visit,walk,photo"
+      season: "all_year"
+
+  - name: 烈士陵园
+    description: "烈士陵园位于城东约1公里处的小山丘上，是清溪镇主要的爱国主义教育基地。陵园内有纪念碑一座，碑后为烈士墓园，四周种有松柏，氛围庄严肃穆。管理单位定期维护，绿化较好，每年清明节前后有学校组织学生前来扫墓和接受爱国主义教育。陵园免费开放，平日人迹稀少，空气清新，山顶可远眺城区。由于地势高，视野好，节假日也有学生自发来此放风筝或散步，而非出于教育目的。"
+    npcs: []
+    properties:
+      type: "memorial_park"
+      distance: "1km_east"
+      activity: "education_visit,kite,pilgrimage"
+      season: "all_year"
+
+  # ===== 城市总体印象（供AI快速了解） =====
+  - name: 清溪镇城市概述
+    description: "清溪镇是一座典型的西南河谷小城，城区沿清溪河两岸分布，以老城西岸为核心，新城东岸为拓展。人口约13-16万，节奏悠闲，民风质朴。老城街巷密集，有老树老桥，烟火气浓厚；新城现代建筑为主，有商业综合体和体育中心。近郊有五大自然景点：清溪峡（水磨坊遗迹）、桐子坡（野花台）、回龙桥（古桥）、竹林骑行径、松林观景台（星空）。城市无大型游乐园或展馆，近郊自然空间是中学生周末的主要去处。城区商业和休闲设施集中在老街和商业综合体，中学生课余活动以老街、河边步道、奶茶店、学校操场为主。城市气质：清净质朴、节奏慢、人情味浓、小而温馨。"
+    npcs: []
+    properties:
+      type: "city_overview"
+      for: "ai_context"
