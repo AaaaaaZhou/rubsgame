@@ -42,8 +42,9 @@ class EngineCore:
         }
     ]
 
-    def __init__(self, config: Optional[AppConfig] = None):
+    def __init__(self, config: Optional[AppConfig] = None, dev_mode: bool = False):
         self._config = config or AppConfig.get_instance()
+        self._dev_mode = dev_mode
         self._session_mgr = SessionManager(self._config.session_dir)
         self._asset_mgr = AssetManager.get_instance()
         self._orchestrator = PromptOrchestrator(
@@ -97,9 +98,10 @@ class EngineCore:
         # 3. 解析结构化输出
         parsed = self._parse_response(response_text)
 
-        # 4. 记录历史
-        session.add_message("user", user_input)
-        session.add_message("assistant", parsed["content"])
+        # 4. 记录历史（非 dev mode）
+        if not self._dev_mode:
+            session.add_message("user", user_input)
+            session.add_message("assistant", parsed["content"])
 
         _logger.debug(f"Chat completed for {session_id}: emotion={parsed['emotion']}")
         return {
@@ -161,6 +163,8 @@ class EngineCore:
 
     def finalize_and_save(self, session_id: str) -> None:
         """结束会话并保存（退出前调用）"""
+        if self._dev_mode:
+            return
         session = self._session_mgr.get_session(session_id)
         if session:
             # Phase 5: 调用记忆精炼引擎

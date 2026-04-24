@@ -33,7 +33,7 @@ def main():
         config.set_current_llm_model(args.model)
 
     # 初始化引擎
-    engine = EngineCore(config)
+    engine = EngineCore(config, dev_mode=config.dev_mode)
 
     # dev mode 下默认加载导游 NPC（用于世界检索测试）
     if config.dev_mode and not args.persona:
