@@ -63,6 +63,28 @@ class BaseLLMClient(ABC):
         """
         pass
 
+    @abstractmethod
+    def chat_with_tools(
+        self,
+        messages: List[Dict[str, Any]],
+        tools: List[Dict[str, Any]],
+        **kwargs
+    ) -> str:
+        """发送对话请求，支持 tool calling
+
+        当 LLM 判断需要调用工具时，自动执行 tool 并将结果注入消息循环，
+        直到 LLM 返回最终回复。
+
+        Args:
+            messages: 消息列表，每条消息为 {"role": str, "content": str}
+            tools: OpenAI 格式的 tool schema 列表
+            **kwargs: 额外参数
+
+        Returns:
+            模型最终回复文本
+        """
+        pass
+
     def _ensure_api_key(self, config: Dict[str, Any]) -> None:
         """检查 API Key 是否配置
 

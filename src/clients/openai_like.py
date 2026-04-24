@@ -63,6 +63,7 @@ class OpenAILikeClient(BaseLLMClient):
         self._default_response_format = config.get("response_format")
         self._top_p = config.get("top_p")
         self._extra_roles = config.get("extra_roles", [])
+        self._asset_manager = None
 
         self._logger.info(
             f"OpenAILikeClient initialized for '{model_name}': "
@@ -146,6 +147,72 @@ class OpenAILikeClient(BaseLLMClient):
 
     def count_tokens(self, text: str) -> int:
         return len(text) // 4
+
+    def set_asset_manager(self, asset_manager) -> None:
+        """设置 asset manager 引用，用于 tool 执行"""
+        self._asset_manager = asset_manager
+
+    def chat_with_tools(
+        self,
+        messages: List[Dict[str, Any]],
+        tools: List[Dict[str, Any]],
+        **kwargs
+    ) -> str:
+        """发送对话请求，支持 tool calling"""
+        request_params = self._build_base_params(messages, **kwargs)
+        if tools:
+            request_params["tools"] = tools
+        if "tool_choice" not in request_params:
+            request_params["tool_choice"] = "auto"
+
+        max_iterations = 10
+        iteration = 0
+
+        while iteration < max_iterations:
+            iteration += 1
+            response = self._client.chat.completions.create(**request_params)
+            message = response.choices[0].message
+
+            if not message.tool_calls:
+                return message.content or ""
+
+            for tool_call in message.tool_calls:
+                tool_result = self._execute_tool(tool_call.function, tools)
+                messages.append({
+                    "role": "assistant",
+                    "content": None,
+                    "tool_calls": [{
+                        "id": tool_call.id,
+                        "type": "function",
+                        "function": tool_call.function
+                    }]
+                })
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "content": tool_result
+                })
+
+        raise RuntimeError("Tool calling exceeded max iterations")
+
+    def _execute_tool(
+        self,
+        function,
+        tools: List[Dict[str, Any]]
+    ) -> str:
+        """根据 function name 执行对应工具"""
+        func_name = function.name
+
+        if func_name == "search_world":
+            import json
+            args = json.loads(function.arguments)
+            if self._asset_manager is None:
+                return json.dumps({"error": "asset_manager not set"}, ensure_ascii=False)
+            result = self._asset_manager.query_world(args.get("keyword", ""))
+            return json.dumps(result, ensure_ascii=False)
+
+        self._logger.warning(f"Unknown tool: {func_name}")
+        return json.dumps({"error": f"Unknown tool: {func_name}"}, ensure_ascii=False)
 
     def _build_base_params(
         self,

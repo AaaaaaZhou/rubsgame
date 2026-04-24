@@ -22,6 +22,26 @@ _logger = get_logger("rubsgame.engine")
 class EngineCore:
     """对话引擎核心 - 门面类"""
 
+    WORLD_TOOLS = [
+        {
+            "type": "function",
+            "function": {
+                "name": "search_world",
+                "description": "当你想了解清溪镇的地点、活动或知识时调用，例如：哪里可以骑车？哪里适合看日落？夏天去哪玩？",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "keyword": {
+                            "type": "string",
+                            "description": "搜索关键词，可以是地点名称、活动类型、季节特征等"
+                        }
+                    },
+                    "required": ["keyword"]
+                }
+            }
+        }
+    ]
+
     def __init__(self, config: Optional[AppConfig] = None):
         self._config = config or AppConfig.get_instance()
         self._session_mgr = SessionManager(self._config.session_dir)
@@ -70,9 +90,9 @@ class EngineCore:
         # 1. 构建 Prompt
         messages = self._orchestrator.build_messages(session, user_input)
 
-        # 2. 调用 LLM
-        client = self._client_mgr.get_client()
-        response_text = client.chat(messages)
+        # 2. 调用 LLM（支持 tool calling）
+        client = self._client_mgr.get_client_with_asset_manager(self._asset_mgr)
+        response_text = client.chat_with_tools(messages, tools=self.WORLD_TOOLS)
 
         # 3. 解析结构化输出
         parsed = self._parse_response(response_text)

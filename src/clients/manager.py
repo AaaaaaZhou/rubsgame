@@ -118,7 +118,20 @@ class ClientManager:
         Returns:
             可用模型名称列表
         """
-        return self._get_config().get_available_models()
+        return self._config.get_available_models()
+
+    def get_client_with_asset_manager(self, asset_manager) -> BaseLLMClient:
+        """获取支持 tool 的客户端实例
+
+        Args:
+            asset_manager: AssetManager 实例，用于 tool 执行
+
+        Returns:
+            配置了 asset_manager 的 LLM 客户端
+        """
+        client = self.get_client()
+        client.set_asset_manager(asset_manager)
+        return client
 
     def _get_config(self) -> AppConfig:
         """获取配置实例
