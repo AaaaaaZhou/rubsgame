@@ -19,6 +19,194 @@ def _cli_debug(*args, **kwargs):
     print(*args, **kwargs)
 
 
+class LLMDebugFormatter:
+    """LLM 通信调试格式化器（仅 dev_mode 启用）"""
+
+    ROLE_COLORS = {
+        "system": "\033[34m",    # 蓝色
+        "user": "\033[32m",      # 绿色
+        "assistant": "\033[33m", # 黄色
+        "tool": "\033[31m",      # 红色
+    }
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    DIM = "\033[2m"
+
+    def format_request(
+        self,
+        model_name: str,
+        messages: List[Dict[str, Any]],
+        params: Dict[str, Any],
+        tokens: int
+    ) -> str:
+        """格式化请求输出"""
+        lines = []
+
+        # Header
+        display_params = {k: v for k, v in params.items() if k != "messages"}
+        if "api_key" in display_params:
+            display_params["api_key"] = "***"
+        params_str = ", ".join(f"{k}={self._format_value(v)}" for k, v in display_params.items())
+
+        lines.append(f"\n{self.BOLD}{self._box_top('Request', model_name)}{self.RESET}")
+        lines.append(f"{self.DIM}  Tokens: ~{tokens}{self.RESET}")
+
+        # Messages section
+        lines.append(f"{self.BOLD}{self._section('Messages')}{self.RESET}")
+        for i, msg in enumerate(messages):
+            lines.append(self._format_message(i, msg))
+
+        # Parameters section
+        lines.append(f"{self.BOLD}{self._section('Parameters')}{self.RESET}")
+        for k, v in display_params.items():
+            lines.append(f"  {self._dim(k)}: {self._format_value(v)}")
+
+        lines.append(self._box_bottom())
+        return "\n".join(lines) + "\n"
+
+    def format_response(self, content: str, tokens: int, latency: float) -> str:
+        """格式化响应输出"""
+        lines = []
+
+        lines.append(f"{self.BOLD}{self._box_top('Response', '')}{self.RESET}")
+        lines.append(f"{self.DIM}  Tokens: ~{tokens} | Latency: {latency:.2f}s{self.RESET}")
+
+        # Content section
+        lines.append(f"{self.BOLD}{self._section('Content')}{self.RESET}")
+
+        # 尝试解析 JSON 并格式化
+        try:
+            parsed = json.loads(content)
+            lines.append(self._format_json_content(parsed))
+        except Exception:
+            # 非 JSON 时直接显示原文
+            display_content = content if len(content) <= 300 else content[:300] + "..."
+            lines.append(f"  {display_content}")
+
+        lines.append(self._box_bottom())
+        return "\n".join(lines) + "\n"
+
+    def format_tool_call(self, func_name: str, arguments: str) -> str:
+        """格式化 tool call 输出"""
+        lines = []
+        lines.append(f"  {self.BOLD}┌─ Tool: {func_name}{self.RESET}")
+        try:
+            args = json.loads(arguments)
+            for k, v in args.items():
+                lines.append(f"  │   {self._dim(k)}: {self._format_value(v)}")
+        except Exception:
+            lines.append(f"  │   {arguments}")
+        lines.append(f"  └─────────────────────────────────")
+        return "\n".join(lines) + "\n"
+
+    # ==================== 内部格式化方法 ====================
+
+    def _format_message(self, idx: int, msg: Dict[str, Any]) -> str:
+        role = msg.get("role", "?")
+        color = self.ROLE_COLORS.get(role, "")
+        label = f"[{idx}] {role.upper()}"
+
+        lines = [f"  {color}{self.BOLD}{label}{self.RESET}"]
+
+        # content 字段
+        content = msg.get("content", "")
+        if content:
+            if len(content) > 200:
+                lines.append(self._truncate_content(content, 200))
+            else:
+                lines.append(f"      {content}")
+
+        # tool_calls 嵌套展示
+        if "tool_calls" in msg:
+            for tc in msg["tool_calls"]:
+                func = tc.get("function", {})
+                fname = func.get("name", "?")
+                fargs = func.get("arguments", "{}")
+                lines.append(f"      {self._tool_tree(fname, fargs)}")
+
+        # tool 相关
+        if role == "tool":
+            tc_id = msg.get("tool_call_id", "")
+            lines.append(f"      {self.DIM}tool_call_id: {tc_id}{self.RESET}")
+
+        return "\n".join(lines)
+
+    def _format_json_content(self, parsed: Dict[str, Any], indent: int = 2) -> str:
+        """格式化 JSON 内容为多行可读形式"""
+        lines = []
+        for key, value in parsed.items():
+            val_str = self._format_value(value)
+            lines.append(f"  {self.BOLD}{key}{self.RESET}: {val_str}")
+        return "\n".join(lines)
+
+    def _format_value(self, value: Any, max_len: int = 60) -> str:
+        """格式化单个值，过长则截断"""
+        if isinstance(value, str):
+            if len(value) > max_len:
+                return f'"{value[:max_len]}..." ({len(value)} chars)'
+            return f'"{value}"'
+        elif isinstance(value, (int, float, bool)):
+            return str(value)
+        elif isinstance(value, list):
+            if len(value) > 3:
+                return f"[{len(value)} items]"
+            return str(value)
+        elif isinstance(value, dict):
+            return str(value)
+        return str(value)
+
+    def _truncate_content(self, content: str, limit: int) -> str:
+        """截断长文本，显示前几行"""
+        lines = content.split("\n")
+        shown = []
+        total = 0
+        for line in lines:
+            total += len(line) + 1
+            if total > limit:
+                break
+            shown.append(line)
+        result = "\n".join(shown)
+        return f"      {result}\n      {self.DIM}... ({len(content)} chars total){self.RESET}"
+
+    def _tool_tree(self, func_name: str, arguments: str) -> str:
+        """格式化 tool call 为树状结构"""
+        lines = [f"{self.BOLD}┌─ {func_name}{self.RESET}"]
+        try:
+            args = json.loads(arguments)
+            for i, (k, v) in enumerate(args.items()):
+                lines.append(f"│   {self._dim(k)}: {self._format_value(v)}")
+        except Exception:
+            lines.append(f"│   {arguments}")
+        lines.append(f"└─")
+        return "\n".join(lines)
+
+    def _section(self, title: str) -> str:
+        return f"├─ {title} ─{'─' * 40}"
+
+    def _box_top(self, label: str, model: str) -> str:
+        width = 60
+        if model:
+            return f"┌─ {label} ({model}) {'─' * (width - len(label) - len(model) - 4)}"
+        return f"┌─ {label} {'─' * (width - len(label) - 3)}"
+
+    def _box_bottom(self) -> str:
+        return "└" + "─" * 61
+
+    def _dim(self, text: str) -> str:
+        return f"{self.DIM}{text}{self.RESET}"
+
+
+# 全局格式化器实例（延迟初始化）
+_debug_formatter: Optional[LLMDebugFormatter] = None
+
+
+def _get_formatter() -> LLMDebugFormatter:
+    global _debug_formatter
+    if _debug_formatter is None:
+        _debug_formatter = LLMDebugFormatter()
+    return _debug_formatter
+
+
 class OpenAILikeClient(BaseLLMClient):
     """OpenAI 兼容客户端
 
@@ -168,15 +356,31 @@ class OpenAILikeClient(BaseLLMClient):
         max_iterations = 10
         iteration = 0
 
+        if self._dev_mode:
+            self._print_request(messages, request_params)
+
         while iteration < max_iterations:
             iteration += 1
+            start_time = time.time()
             response = self._client.chat.completions.create(**request_params)
+            latency = time.time() - start_time
             message = response.choices[0].message
+
+            if self._dev_mode:
+                tokens = self.count_tokens(str(message.content or ""))
+                _cli_debug(_get_formatter().format_response(
+                    message.content or "", tokens, latency
+                ))
 
             if not message.tool_calls:
                 return message.content or ""
 
             for tool_call in message.tool_calls:
+                if self._dev_mode:
+                    func = tool_call.function
+                    _cli_debug(_get_formatter().format_tool_call(
+                        func.name, func.arguments
+                    ))
                 tool_result = self._execute_tool(tool_call.function, tools)
                 messages.append({
                     "role": "assistant",
@@ -275,28 +479,12 @@ class OpenAILikeClient(BaseLLMClient):
         messages: List[Dict[str, Any]],
         params: Dict[str, Any]
     ) -> None:
-        """dev_mode 下打印完整请求到 CLI"""
-        _cli_debug(f"\n[LLM DEBUG] {self._model_name}")
-
-        for i, msg in enumerate(messages):
-            role = msg.get("role", "?")
-            content = msg.get("content", "")
-            if len(content) > 200:
-                content = content[:200] + "..."
-            name = msg.get("name", "")
-            extra = f", name={name}" if name else ""
-            _cli_debug(f"  --> messages[{i}]: role={role}{extra}, content={json.dumps(content, ensure_ascii=False)}")
-
-        display_params = {k: v for k, v in params.items() if k != "messages"}
-        if "api_key" in display_params:
-            display_params["api_key"] = "***"
-        params_str = json.dumps(display_params, ensure_ascii=False)
-        _cli_debug(f"  --> params: {params_str})")
-
-        req_tokens = self.count_tokens(
-            "".join(m.get("content", "") for m in messages)
-        )
-        _cli_debug(f"  --> request_tokens: ~{req_tokens}")
+        """dev_mode 下打印完整请求到 CLI（结构化格式）"""
+        if not self._dev_mode:
+            return
+        tokens = self.count_tokens("".join(m.get("content", "") for m in messages))
+        output = _get_formatter().format_request(self._model_name, messages, params, tokens)
+        _cli_debug(output)
 
     def _print_response(
         self,
@@ -304,8 +492,9 @@ class OpenAILikeClient(BaseLLMClient):
         params: Dict[str, Any],
         latency: float
     ) -> None:
-        """dev_mode 下打印完整响应到 CLI"""
-        resp_tokens = self.count_tokens(content)
-        display_content = content if len(content) <= 300 else content[:300] + "..."
-        _cli_debug(f"  <-- response: {json.dumps(display_content, ensure_ascii=False)}")
-        _cli_debug(f"  <-- response_tokens: ~{resp_tokens}, latency: {latency:.2f}s\n")
+        """dev_mode 下打印完整响应到 CLI（结构化格式）"""
+        if not self._dev_mode:
+            return
+        tokens = self.count_tokens(content)
+        output = _get_formatter().format_response(content, tokens, latency)
+        _cli_debug(output)
