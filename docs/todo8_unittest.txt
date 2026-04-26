@@ -1,25 +1,53 @@
 # Phase 8 测试与示例文件
+# 更新于 2026-04-26
 
 ## 8.1 示例资产文件
-- [ ] 创建：`assets/world/quiet_town.yaml`
-  - [ ] 内容：包含 "夕阳酒馆"、"中央广场"、"警局" 等地点描述
-- [ ] 创建：`assets/personas/inn_keeper.yaml`
-  - [ ] 内容：完整的人设 + emotion_config 块
-- [ ] 创建：`assets/personas/sheriff.yaml`
-  - [ ] 内容：不同的性格，绑定不同的素材包 (如 kaomoji_serious)
+- [x] 创建：`assets/world/qingxi.yaml` ✅
+  - [x] 内容：包含多个地点描述 ✅
+- [x] 创建：`assets/personas/alice.yaml` ✅
+  - [x] 内容：完整的人设 + emotion_config 块 ✅
+- [x] 创建：`assets/personas/guide.yaml` ✅
+  - [x] 内容：dev_mode 默认角色 ✅
+- [x] 创建：`assets/materials/kaomoji_cute.yaml` ✅
+- [x] 创建：`assets/materials/kaomoji_serious.yaml` ✅
+- [x] 创建：`assets/materials/emoji_default.yaml` ✅
+
+- [ ] 创建：`assets/personas/sheriff.yaml` (不同的性格，绑定不同的素材包)
+- [ ] 尚未实现的 KaomojiProvider 未验证实际加载
 
 ## 8.2 单元测试
-- [ ] 创建：`tests/test_session.py`
-  - [ ] 测试：保存与加载 JSON 是否数据丢失
-- [ ] 创建：`tests/test_orchestrator.py`
-  - [ ] 测试：Prompt 组装顺序是否正确
+- [x] 创建：`unittest/core/test_session.py` ✅
+  - [x] 测试：保存与加载 JSON 是否数据丢失 ✅
+  - [x] 测试：ConversationSession 方法 ✅
+
+- [x] 创建：`unittest/core/test_persona.py` ✅
+  - [x] 测试：Persona 创建与 YAML 解析 ✅
+  - [x] 测试：PersonaEmotionConfig 校验 ✅
+
+- [x] 创建：`unittest/core/test_world_model.py` ✅
+  - [x] 测试：WorldKnowledge 模型 ✅
+  - [x] 测试：Location 模型 ✅
+
+- [x] 创建：`unittest/core/test_loaders.py` ✅
+  - [x] 测试：PersonaLoader, WorldLoader ✅
+
+- [x] 创建：`unittest/core/test_npc.py` ✅
+  - [x] 测试：NPCRelationship, NPCMemory, NPCProfile ✅
+
+- [x] 创建：`unittest/llm/test_connection.py` ✅
+  - [x] 测试：LLM 连接 ✅
+
+- [x] 创建：`unittest/utils/test_logger.py` ✅
+- [x] 创建：`unittest/utils/test_config.py` ✅
+
 - [ ] 创建：`tests/test_emotion_provider.py`
   - [ ] 测试：KaomojiProvider 是否能正确读取 YAML 并返回字符串
+  - [ ] 依赖 Phase 4 BaseMaterialProvider 实现
 
 ## 8.3 端到端测试
-- [ ] 手动流程测试：
+- [ ] 手动流程测试未正式编写：
   1. 启动程序，输入 "你好"
-  2. 输入 `/role inn_keeper`
+  2. 输入 `/role alice`
   3. 进行 3-5 轮对话
   4. 输入 `/save test_001`
   5. 输入 `/exit` (观察是否触发精炼逻辑)

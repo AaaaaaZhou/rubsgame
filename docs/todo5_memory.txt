@@ -1,39 +1,54 @@
-
----
-
-### 📁 Phase 5: 记忆精炼与持久化引擎
-**文件：`todo_phase5_memory.txt`**
-
-```txt
 # Phase 5: 记忆精炼与持久化引擎
 # 目标：退出时自动压缩历史、提取记忆
+# 更新于 2026-04-26
 
 ## 5.1 历史精炼策略
-- [ ] 创建文件：`src/core/memory_engine/refiners.py`
-  - [ ] 定义抽象基类：`BaseHistoryRefiner`
-    - [ ] 抽象方法：`refine(self, full_history: List[Message]) -> List[Message]`
-  
-  - [ ] 定义类：`NaiveCompressor(BaseHistoryRefiner)`
-    - [ ] 逻辑：保留首尾 N 轮对话，中间部分进行摘要或丢弃
-    - [ ] 配置：通过 settings.yaml 配置保留轮数
+- [x] 创建文件：`src/core/memory/refiner.py` ✅
+  - [x] 定义抽象基类：`BaseHistoryRefiner` ✅
+    - [x] 抽象方法：`refine(self, full_history: List[Message]) -> List[Message]` ✅
+    - [x] 抽象方法：`refine_with_summary()` ✅
 
-  - [ ] 预留类：`LLMSummarizer(BaseHistoryRefiner)`
-    - [ ] 预留：调用 LLM 对中间历史进行总结
+  - [x] 定义类：`BalancedHistoryRefiner(BaseHistoryRefiner)` ✅
+    - [x] 逻辑：保留首尾 N 轮对话，中间部分进行摘要或丢弃 ✅
+    - [x] 配置：通过 MemoryConfig 配置保留轮数 ✅
+    - [x] LLM摘要增强：`refine_with_summary()` 方法 ✅
+
+- [ ] 预留类：`LLMSummarizer(BaseHistoryRefiner)` - 参见 refine_with_summary
+- [ ] 预留类：`AggressiveCompressor` - 极致压缩策略未实现
+- [ ] 预留类：`FullRetentionRefiner` - 全量保留策略未实现
 
 ## 5.2 记忆提取器
-- [ ] 创建文件：`src/core/memory_engine/extractors.py`
-  - [ ] 定义类：`MemoryExtractor`
-    - [ ] 方法：`__init__(self, llm_client: BaseLLMClient)` (预留，也可规则提取)
-    - [ ] 方法：`extract(self, history: List[Message]) -> List[MemoryItem]`
-      - [ ] 逻辑：目前可先用简单规则 (如查找包含"记住"、"约定"的句子)
-      - [ ] 预留：调用 LLM 进行 NER 与关系提取
+- [x] 创建文件：`src/core/memory/extractor.py` ✅
+  - [x] 定义抽象基类：`BaseMemoryExtractor` ✅
+    - [x] 抽象方法：`extract(session, llm_client, config) -> List[MemoryItem]` ✅
 
-## 5.3 记忆引擎主控
-- [ ] 创建文件：`src/core/memory_engine/engine.py`
-  - [ ] 定义类：`MemoryEngine`
-    - [ ] 方法：`__init__(self, config: AppConfig, asset_manager: AssetManager)`
-    - [ ] 方法：`finalize_session(self, session: ConversationSession)`
-      - [ ] 交互：调用 Refiner 生成 session.refined_history
-      - [ ] 交互：调用 Extractor 生成 session.session_memories
-      - [ ] 交互：遍历 memories，将 type=world_extend 的条目通过 asset_manager 更新到全局
-      - [ ] 交互：调用 SessionManager 保存文件
+  - [x] 定义类：`LLMMemoryExtractor(BaseMemoryExtractor)` ✅
+    - [x] 通过 LLM 进行记忆提取 ✅
+    - [x] 会话记忆与全局记忆分离 ✅
+
+## 5.3 记忆配置
+- [x] 创建文件：`src/core/memory/config.py` ✅
+  - [x] 定义类：`MemoryConfig` ✅
+    - [x] refine_threshold_tokens ✅
+    - [x] refine_max_turns ✅
+    - [x] extraction_interval ✅
+    - [x] max_session_memories ✅
+    - [x] max_world_memories ✅
+    - [x] balance_strategy ✅
+
+## 5.4 记忆引擎主控
+- [x] 创建文件：`src/core/memory/memory_manager.py` ✅
+  - [x] 定义类：`MemoryManager` ✅
+    - [x] 方法：`__init__(self, config: AppConfig, asset_manager: AssetManager)` ✅
+    - [x] 方法：`refine_and_extract(self, session: ConversationSession, force: bool)` ✅
+      - [x] 交互：调用 Refiner 生成 session.refined_history ✅
+      - [x] 交互：调用 Extractor 生成 session.session_memories ✅
+      - [x] 交互：遍历 memories，将 type=world_global 的条目通过 asset_manager 更新到全局 ✅
+      - [x] 交互：调用 SessionManager 保存文件 ✅
+    - [x] LLM摘要生成：`_generate_llm_summary()` ✅
+    - [x] 触发条件检查：Token 限制、轮次限制 ✅
+
+## 5.5 记忆持久化
+- [x] 会话记忆写入会话文件 ✅ (Session.to_dict())
+- [x] 全局世界观记忆更新到 WorldKnowledge ✅ (AssetManager.update_global_memory)
+- [ ] 预留：记忆过期、合并接口

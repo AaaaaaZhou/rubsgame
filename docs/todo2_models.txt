@@ -1,51 +1,52 @@
 # Phase 2: 核心数据模型与配置管理
 # 目标：定义 Persona, World, Session 的数据结构 (Dataclasses)
+# 更新于 2026-04-26
 
 ## 2.1 会话数据模型 (Session)
-- [ ] 创建文件：`src/core/session.py`
-  - [ ] 定义数据类：`Message`
-    - [ ] 字段：`role: str` (system/user/assistant)
-    - [ ] 字段：`content: str`
-    - [ ] 字段：`timestamp: float` (可选)
-  
-  - [ ] 定义数据类：`MemoryItem`
-    - [ ] 字段：`content: str`
-    - [ ] 字段：`memory_type: str` (session_global/world_extend)
-    - [ ] 字段：`priority: int` (0-10)
+- [x] 创建文件：`src/core/session.py` ✅
+  - [x] 定义数据类：`Message` ✅
+    - [x] 字段：`role: str` (system/user/assistant) ✅
+    - [x] 字段：`content: str` ✅
+    - [x] 字段：`timestamp: float` (可选) ✅
 
-  - [ ] 定义类：`ConversationSession`
-    - [ ] 字段：`session_id: str`
-    - [ ] 字段：`full_history: List[Message]` (原始数据，永不删除)
-    - [ ] 字段：`refined_history: List[Message]` (用于Prompt)
-    - [ ] 字段：`session_memories: List[MemoryItem]`
-    - [ ] 字段：`bound_persona_file: str` (记录当前加载的人设文件名)
-    - [ ] 方法：`to_dict(self) -> dict` (序列化)
-    - [ ] 方法：`from_dict(cls, data: dict) -> ConversationSession` (反序列化)
+  - [x] 定义数据类：`MemoryItem` ✅
+    - [x] 字段：`content: str` ✅
+    - [x] 字段：`memory_type: str` (session_local/world_global) ✅
+    - [x] 字段：`priority: int` (0-10) ✅
+
+  - [x] 定义类：`ConversationSession` ✅
+    - [x] 字段：`session_id: str` ✅
+    - [x] 字段：`full_history: List[Message]` (原始数据，永不删除) ✅
+    - [x] 字段：`refined_history: List[Message]` (用于Prompt) ✅
+    - [x] 字段：`session_memories: List[MemoryItem]` ✅
+    - [x] 字段：`bound_persona_file: str` (记录当前加载的人设文件名) ✅
+    - [x] 方法：`to_dict(self) -> dict` (序列化) ✅
+    - [x] 方法：`from_dict(cls, data: dict) -> ConversationSession` (反序列化) ✅
 
 ## 2.2 人设与情绪配置模型 (Persona)
-- [ ] 创建文件：`src/core/persona.py`
-  - [ ] 定义数据类：`PersonaEmotionConfig`
-    - [ ] 字段：`default_emotion: str`
-    - [ ] 字段：`allowed_emotions: List[str]`
-    - [ ] 字段：`blocked_emotions: List[str]`
-    - [ ] 字段：`expression_intensity: float` (0.0 - 1.0)
-    - [ ] 字段：`material_package: str` (绑定的素材包文件名，如 "kaomoji_cute")
+- [x] 创建文件：`src/core/persona.py` ✅
+  - [x] 定义数据类：`PersonaEmotionConfig` ✅
+    - [x] 字段：`default_emotion: str` ✅
+    - [x] 字段：`allowed_emotions: List[str]` ✅
+    - [x] 字段：`blocked_emotions: List[str]` ✅
+    - [x] 字段：`expression_intensity: float` (0.0 - 1.0) ✅
+    - [x] 字段：`material_package: str` (绑定的素材包文件名，如 "kaomoji_cute") ✅
 
-  - [ ] 定义类：`Persona`
-    - [ ] 字段：`name: str`
-    - [ ] 字段：`system_prompt: str` (由 background, personality 等拼接生成)
-    - [ ] 字段：`emotion_config: PersonaEmotionConfig`
-    - [ ] 方法：`load_from_yaml(cls, file_path: str) -> Persona`
+  - [x] 定义类：`Persona` ✅
+    - [x] 字段：`name: str` ✅
+    - [x] 字段：`system_prompt: str` (由 background, personality 等拼接生成) ✅
+    - [x] 字段：`emotion_config: PersonaEmotionConfig` ✅
+    - [x] 方法：`load_from_yaml(cls, file_path: str) -> Persona` ✅ (实际为 create_from_yaml_data)
 
 ## 2.3 世界观模型 (World)
-- [ ] 创建文件：`src/core/world_model.py`
-  - [ ] 定义数据类：`Location`
-    - [ ] 字段：`name: str`, `desc: str`, `npcs: List[str]`
+- [x] 创建文件：`src/core/world_model.py` ✅
+  - [x] 定义数据类：`Location` ✅
+    - [x] 字段：`name: str`, `description: str`, `npcs: List[str]` ✅
 
-  - [ ] 定义类：`WorldKnowledge`
-    - [ ] 字段：`world_name: str`
-    - [ ] 字段：`locations: List[Location]`
-    - [ ] 字段：`global_extend_memories: List[MemoryItem]` (动态更新区)
-    - [ ] 方法：`load_from_yaml(cls, file_path: str) -> WorldKnowledge`
-    - [ ] 方法：`get_system_context(self) -> str` (生成世界观描述文本)
-    - [ ] 预留方法：`query(self, keyword: str) -> List[str]`
+  - [x] 定义类：`WorldKnowledge` ✅
+    - [x] 字段：`world_name: str` ✅
+    - [x] 字段：`locations: List[Location]` ✅
+    - [x] 字段：`global_memories: List[MemoryItem]` (动态更新区) ✅
+    - [x] 方法：`load_from_yaml(cls, file_path: str) -> WorldKnowledge` ✅ (通过 WorldLoader)
+    - [x] 方法：`get_system_context(self) -> str` (生成世界观描述文本) ✅
+    - [x] 预留方法：`query(self, keyword: str) -> List[str]` ✅ (query_locations + query_memories)

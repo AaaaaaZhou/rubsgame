@@ -1,17 +1,27 @@
 # Phase 9: 文档与优化
+# 更新于 2026-04-26
 
 ## 9.1 开发者文档
 - [ ] 创建：`docs/MATERIALS_SDK.md`
   - [ ] 内容：详细说明如何继承 `BaseMaterialProvider` 开发新的素材包
   - [ ] 示例：如何编写一个 `EmojiProvider`
-- [ ] 创建：`docs/MEMORY_STRATEGY.md`
-  - [ ] 内容：解释精炼策略的工作原理
+  - [ ] 依赖 Phase 4 BaseMaterialProvider 实现
+
+- [x] 创建：`docs/memory_developer_guide.md` ✅
+  - [x] 内容：解释精炼策略的工作原理 ✅
+
+- [x] 创建：`docs/memory_system.md` ✅
+
+- [x] 创建：`docs/tool_calling_development.md` ✅
 
 ## 9.2 用户文档
-- [ ] 创建：`README.md`
-  - [ ] 快速开始指南
-  - [ ] 指令列表 (/save, /load, /role 等)
+- [x] 创建：`README.md` ✅
+  - [x] 快速开始指南 ✅
+  - [x] 指令列表 (/save, /load, /role 等) ✅
+  - [x] Build and Test Commands ✅
 
 ## 9.3 优化
 - [ ] 性能：实现 Token 计数 (tiktoken)，防止超限
+  - [ ] 当前 estimate_tokens() 为简单字符估算，不准确
 - [ ] 体验：实现打字机效果 (流式输出) 的预留接口
+  - [ ] BaseLLMClient.chat() 返回字符串，非流式

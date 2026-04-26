@@ -1,51 +1,51 @@
 # AI对话系统开发 Todo List
 # 基于「叙事驱动+情绪表达+记忆精炼」架构设计
-# 重点标注：素材加载接口预留
+# 更新于 2026-04-26
 
 ## Phase 1: 项目初始化与基础设施
-- [ ] 创建完整目录结构（按最终目录树规范）
-- [ ] 编写全局配置文件模板 `config/settings.yaml`
-  - [ ] 配置API Key、默认路径
-  - [ ] 配置情绪引擎默认参数、渲染规则
-  - [ ] 配置记忆精炼默认策略
-- [ ] 实现基础日志系统（支持情绪解析、记忆精炼专项日志）
+- [x] 创建完整目录结构（按最终目录树规范）
+- [x] 编写全局配置文件模板 `config/settings.yaml`
+  - [x] 配置API Key、默认路径
+  - [x] 配置情绪引擎默认参数、渲染规则
+  - [x] 配置记忆精炼默认策略
+- [x] 实现基础日志系统（支持情绪解析、记忆精炼专项日志）
 - [ ] 搭建项目依赖管理（requirements.txt）
 
 ## Phase 2: 核心数据模型与配置管理
-- [ ] 定义会话数据类（Session）
-  - [ ] 实现全量历史、精炼历史、会话记忆、元数据字段
-- [ ] 定义人设数据类（Persona）
-  - [ ] 实现基础人设字段
-  - [ ] 实现情绪配置字段（允许/禁止情绪、强度、绑定素材包）
-- [ ] 定义世界观数据类（WorldKnowledge）
-  - [ ] 实现基础设定字段
-  - [ ] 实现全局扩展记忆槽
-- [ ] 实现配置管理模块（支持YAML/环境变量/命令行参数优先级）
+- [x] 定义会话数据类（Session）
+  - [x] 实现全量历史、精炼历史、会话记忆、元数据字段
+- [x] 定义人设数据类（Persona）
+  - [x] 实现基础人设字段
+  - [x] 实现情绪配置字段（允许/禁止情绪、强度、绑定素材包）
+- [x] 定义世界观数据类（WorldKnowledge）
+  - [x] 实现基础设定字段
+  - [x] 实现全局扩展记忆槽
+- [x] 实现配置管理模块（支持YAML/环境变量/命令行参数优先级）
 
-## Phase 3: 叙事引擎核心模块（原有需求+兼容升级）
-- [ ] 实现会话管理器（Session Manager）
-  - [ ] 实现会话的创建、保存、加载（支持精简/全量双模式）
-  - [ ] 实现滑动窗口Token管理
-  - [ ] 实现会话元数据管理
-- [ ] 实现人设管理器（Persona Manager）
-  - [ ] 实现人设文件YAML解析
-  - [ ] 实现人设热加载、切换
-  - [ ] 实现情绪配置与人设绑定
-- [ ] 实现世界观库（World Knowledge Library）
-  - [ ] 实现世界观文件YAML解析
-  - [ ] 实现全局单例共享
-  - [ ] 实现动态更新接口 `update_world_memory()`
-  - [ ] 预留关键词检索接口 `query_world(keyword)`
-- [ ] 实现Prompt编排器（Prompt Orchestrator）
-  - [ ] 实现固定顺序的Prompt组装（记忆→世界观→人设→历史→输入→约束）
-  - [ ] 实现结构化输出约束注入
-  - [ ] 实现记忆块的动态注入
+## Phase 3: 叙事引擎核心模块
+- [x] 实现会话管理器（Session Manager）
+  - [x] 实现会话的创建、保存、加载（支持精简/全量双模式）
+  - [x] 实现滑动窗口Token管理
+  - [x] 实现会话元数据管理
+- [x] 实现人设管理器（Persona Manager）
+  - [x] 实现人设文件YAML解析
+  - [x] 实现人设热加载、切换
+  - [x] 实现情绪配置与人设绑定
+- [x] 实现世界观库（World Knowledge Library）
+  - [x] 实现世界观文件YAML解析
+  - [x] 实现全局单例共享
+  - [x] 实现动态更新接口 `update_world_memory()`
+  - [x] 预留关键词检索接口 `query_world(keyword)` ✅ 已实现
+- [x] 实现Prompt编排器（Prompt Orchestrator）
+  - [x] 实现固定顺序的Prompt组装（World→Persona→Memory→History→Input→Constraint）
+  - [x] 实现结构化输出约束注入
+  - [x] 实现记忆块的动态注入
 
 ## Phase 4: 情绪表达引擎（核心新增+素材接口预留）
-- [ ] 实现情绪解析器
-  - [ ] 实现模型返回结构化内容的校验
-  - [ ] 实现禁止情绪过滤、强度修正
-  - [ ] 实现默认情绪降级机制
+- [x] 实现情绪解析器
+  - [x] 实现模型返回结构化内容的校验
+  - [x] 实现禁止情绪过滤、强度修正
+  - [x] 实现默认情绪降级机制
 - [ ] 实现素材管理器（重点：预留加载接口）
   - [ ] 定义抽象基类 `BaseMaterialProvider`
     - [ ] 定义核心抽象方法 `get_material(emotion, intensity, persona_style)`
@@ -65,63 +65,87 @@
   - [ ] 预留多模态素材渲染接口
 
 ## Phase 5: 记忆精炼与持久化引擎（核心新增）
-- [ ] 实现对话历史精炼器
-  - [ ] 定义抽象基类 `BaseHistoryRefiner`
-    - [ ] 定义核心抽象方法 `refine(full_history, config)`
-  - [ ] 实现默认平衡策略精炼器
+- [x] 实现对话历史精炼器
+  - [x] 定义抽象基类 `BaseHistoryRefiner`
+    - [x] 定义核心抽象方法 `refine(full_history, config)`
+  - [x] 实现默认平衡策略精炼器 `BalancedHistoryRefiner`
   - [ ] 实现极致压缩策略精炼器
   - [ ] 实现全量保留策略
-- [ ] 实现长期记忆提取器
-  - [ ] 定义抽象基类 `BaseMemoryExtractor`
-    - [ ] 定义核心抽象方法 `extract(full_history, world_config, persona_config)`
-  - [ ] 实现会话专属记忆提取
-  - [ ] 实现全局世界观记忆提取
-  - [ ] 实现结构化记忆条目输出规范
-- [ ] 实现记忆分级管理器
-  - [ ] 实现记忆去重、优先级排序
-  - [ ] 实现会话记忆写入会话文件
-  - [ ] 实现全局世界观记忆更新到世界观库
+- [x] 实现长期记忆提取器
+  - [x] 定义抽象基类 `BaseMemoryExtractor`
+    - [x] 定义核心抽象方法 `extract(full_history, world_config, persona_config)`
+  - [x] 实现会话专属记忆提取
+  - [x] 实现全局世界观记忆提取
+  - [x] 实现结构化记忆条目输出规范
+- [x] 实现记忆分级管理器
+  - [x] 实现记忆去重、优先级排序
+  - [x] 实现会话记忆写入会话文件
+  - [x] 实现全局世界观记忆更新到世界观库
   - [ ] 预留记忆过期、合并接口
 
 ## Phase 6: 人际关系与私人记忆
-- [ ] 定义数据模型
-  - [ ] 实现 `Relationship` 数据类（好感度、信任度、关系类型）
-  - [ ] 实现 `PersonalMemory` 数据类（内容、重要度、时间戳、关联对象）
-- [ ] 实现人际关系管理器 (`RelationshipManager`)
-  - [ ] 实现关系的创建、查询、更新逻辑
-  - [ ] 实现基于 YAML 的关系持久化（加载/保存）
+- [x] 定义数据模型
+  - [x] 实现 `NPCRelationship` 数据类（好感度、信任度、关系类型）
+  - [x] 实现 `NPCMemory` 数据类（内容、重要度、时间戳、关联对象）
+- [x] 实现人际关系管理器
+  - [x] 实现关系的创建、查询、更新逻辑
+  - [x] 实现基于 YAML 的关系持久化（加载/保存）
   - [ ] 实现好感度阈值触发事件（如：好感度达到80自动解锁新对话分支）
-- [ ] 实现私人记忆管理器 (`MemoryBankManager`)
-  - [ ] 实现记忆的添加与按维度检索（关键词/对象/时间）
+- [x] 实现私人记忆管理器
+  - [x] 实现记忆的添加与按维度检索（关键词/对象/时间）
   - [ ] 实现记忆重要度衰减算法
-  - [ ] 实现基于 YAML 的记忆持久化
-- [ ] 系统集成
-  - [ ] 在 Prompt Orchestrator 中注入【人际关系】和【核心回忆】模块
-  - [ ] 在 Session 退出流程中， hook 记忆抽取逻辑（将短期记忆转为长期记忆）
+  - [x] 实现基于 YAML 的记忆持久化
+- [x] 系统集成
+  - [x] 在 Prompt Orchestrator 中注入【人际关系】和【核心回忆】模块
+  - [x] 在 Session 退出流程中， hook 记忆抽取逻辑
   - [ ] 向 Material Provider 传递关系上下文，实现差异化素材渲染
 
 ## Phase 7: 接口层与模型接入层
-- [ ] 实现PowerShell交互器
-  - [ ] 实现对话模式与指令模式解析
-  - [ ] 实现新增指令：`/emotion`、`/refine`
-  - [ ] 实现退出信号拦截（`/exit`/Ctrl+C）
-  - [ ] 实现退出前强制触发记忆精炼流程
-  - [ ] 实现状态查询输出（表格格式）
-- [ ] 实现模型接入层
-  - [ ] 定义抽象基类 `BaseLLMClient`
-  - [ ] 实现主对话通道客户端（支持结构化输出）
-  - [ ] 预留记忆精炼通道客户端（低成本小模型适配）
-  - [ ] 实现API Key管理
+- [x] 实现PowerShell交互器
+  - [x] 实现对话模式与指令模式解析
+  - [x] 实现新增指令：`/emotion`、`/refine`
+  - [x] 实现退出信号拦截（`/exit`/Ctrl+C）
+  - [x] 实现退出前强制触发记忆精炼流程
+  - [x] 实现状态查询输出（表格格式）
+- [x] 实现模型接入层
+  - [x] 定义抽象基类 `BaseLLMClient`
+  - [x] 实现主对话通道客户端（支持结构化输出）
+  - [x] 实现记忆精炼通道客户端（低成本小模型适配）
+  - [x] 实现API Key管理
 
 ## Phase 8: 测试与示例文件
-- [ ] 编写示例世界观文件 `assets/world/evening_town.yaml`
-- [ ] 编写2-3个示例人设文件（含情绪配置）
-- [ ] 编写默认颜文字素材包 `assets/materials/kaomoji_cute.yaml`
-- [ ] 编写单元测试（核心模块）
+- [x] 编写示例世界观文件 `assets/world/qingxi.yaml`
+- [x] 编写2-3个示例人设文件（含情绪配置）
+- [x] 编写默认颜文字素材包 `assets/materials/kaomoji_cute.yaml`
+- [x] 编写单元测试（核心模块）
 - [ ] 编写端到端测试（完整对话+退出精炼+加载流程）
 
 ## Phase 9: 文档与优化
-- [ ] 编写README.md（项目介绍、快速开始、指令说明）
+- [x] 编写README.md（项目介绍、快速开始、指令说明）
 - [ ] 编写素材包开发文档（基于 `BaseMaterialProvider` 扩展）
-- [ ] 编写记忆精炼策略开发文档
+- [x] 编写记忆精炼策略开发文档 `docs/memory_developer_guide.md`
 - [ ] 性能优化（Token管理、Prompt组装效率）
+
+## Visual Novel 模式开发（docs/superpowers/ 规划）
+- [ ] Step 1: types.py + plot_loader.py
+  - [ ] `src/core/plot/types.py` - PlotState, PlotNode, Branch, Choice 等数据结构
+  - [ ] `src/core/plot/plot_loader.py` - 章节 YAML 加载器
+- [ ] Step 2: plot_manager.py
+  - [ ] `src/core/plot/plot_manager.py` - StoryPlotManager
+- [ ] Step 3: narrator.py
+  - [ ] `src/core/plot/narrator.py` - NarratorGenerator
+- [ ] Step 4: option_generator.py
+  - [ ] `src/core/plot/option_generator.py` - OptionGenerator
+- [ ] Step 5: npc_interaction.py
+  - [ ] `src/core/plot/npc_interaction.py` - NPCInteractionManager
+- [ ] Step 6: game_loop.py
+  - [ ] `src/core/plot/game_loop.py` - GameLoopController（整合所有模块）
+- [ ] Step 7: Session 扩展
+  - [ ] PlotState 持久化到 Session
+- [ ] Step 8: PowerShellInterface 适配
+  - [ ] 选项渲染、键盘输入处理
+- [ ] Step 9: 单元测试
+  - [ ] `unittest/core/plot/test_plot_manager.py`
+  - [ ] `unittest/core/plot/test_narrator.py`
+  - [ ] `unittest/core/plot/test_option_generator.py`
+  - [ ] `unittest/core/plot/test_npc_interaction.py`

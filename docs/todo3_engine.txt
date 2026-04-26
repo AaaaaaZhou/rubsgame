@@ -1,38 +1,55 @@
 # Phase 3: 叙事引擎核心模块
 # 目标：实现 Session/Persona/World 的管理逻辑与 Prompt 组装
+# 更新于 2026-04-26
 
 ## 3.1 会话管理器
-- [ ] 创建文件：`src/core/session_manager.py`
-  - [ ] 定义类：`SessionManager`
-    - [ ] 方法：`__init__(self, storage_dir: str)`
-    - [ ] 方法：`create_new_session(self, session_id: str) -> ConversationSession`
-    - [ ] 方法：`save_session(self, session: ConversationSession)`
-      - [ ] 交互：调用 session.to_dict()，写入 JSON 到 `data/sessions/{session_id}.json`
-    - [ ] 方法：`load_session(self, session_id: str) -> ConversationSession`
-      - [ ] 交互：读取 JSON，调用 session.from_dict()
-    - [ ] 方法：`append_message(self, session: ConversationSession, role: str, content: str)`
-      - [ ] 逻辑：同时追加到 full_history 和 refined_history (直到触发精炼)
+- [x] 创建文件：`src/core/session_manager.py` ✅
+  - [x] 定义类：`SessionManager` ✅
+    - [x] 方法：`__init__(self, storage_dir: str)` ✅
+    - [x] 方法：`create_new_session(self, session_id: str) -> ConversationSession` ✅
+    - [x] 方法：`save_session(self, session: ConversationSession)` ✅
+      - [x] 交互：调用 session.to_dict()，写入 JSON 到 `data/sessions/{session_id}.json` ✅
+    - [x] 方法：`load_session(self, session_id: str) -> ConversationSession` ✅
+      - [x] 交互：读取 JSON，调用 session.from_dict() ✅
+    - [x] 方法：`append_message(self, session: ConversationSession, role: str, content: str)` ✅
+      - [x] 逻辑：同时追加到 full_history 和 refined_history (直到触发精炼) ✅
+    - [x] 方法：`trim_history()` - 滑动窗口裁剪 ✅
 
 ## 3.2 人设与世界观管理器
-- [ ] 创建文件：`src/core/asset_manager.py`
-  - [ ] 定义类：`AssetManager`
-    - [ ] 方法：`__init__(self, config: AppConfig)`
-    - [ ] 字段：`current_world: WorldKnowledge` (缓存的全局单例)
-    - [ ] 字段：`current_persona: Persona` (当前激活的人设)
-    - [ ] 方法：`load_world(self, world_filename: str)`
-    - [ ] 方法：`load_persona(self, persona_filename: str)`
-    - [ ] 方法：`update_global_memory(self, memory_item: MemoryItem)`
-      - [ ] 交互：将记忆写入 current_world，并触发 world 的持久化保存
+- [x] 创建文件：`src/core/asset_manager.py` ✅
+  - [x] 定义类：`AssetManager` ✅
+    - [x] 方法：`__init__(self, config: AppConfig)` ✅
+    - [x] 字段：`current_world: WorldKnowledge` (缓存的全局单例) ✅
+    - [x] 字段：`current_persona: Persona` (当前激活的人设) ✅
+    - [x] 方法：`load_world(self, world_filename: str)` ✅
+    - [x] 方法：`load_persona(self, persona_filename: str)` ✅
+    - [x] 方法：`update_global_memory(self, memory_item: MemoryItem)` ✅
+      - [x] 交互：将记忆写入 current_world ✅
 
 ## 3.3 Prompt 编排器 (核心胶水)
-- [ ] 创建文件：`src/core/orchestrator.py`
-  - [ ] 定义类：`PromptOrchestrator`
-    - [ ] 方法：`__init__(self, asset_manager: AssetManager)`
-    - [ ] 方法：`build_messages(self, session: ConversationSession, user_input: str) -> List[dict]`
-      - [ ] 交互：从 asset_manager 获取 world 和 persona
-      - [ ] 逻辑：
-        1. 构建 System 块 (World Context + Persona + Memories)
-        2. 注入 session.refined_history
-        3. 追加最新 user_input
-        4. 追加结构化输出要求 (JSON Schema 描述)
-      - [ ] 返回：OpenAI 格式的字典列表 `[{"role": "system", "content": "..."}, ...]`
+- [x] 创建文件：`src/core/orchestrator.py` ✅
+  - [x] 定义类：`PromptOrchestrator` ✅
+    - [x] 方法：`__init__(self, asset_manager: AssetManager)` ✅
+    - [x] 方法：`build_messages(self, session: ConversationSession, user_input: str) -> List[dict]` ✅
+      - [x] 交互：从 asset_manager 获取 world 和 persona ✅
+      - [x] 逻辑：
+        1. 构建 System 块 (World Context + Persona + Memories) ✅
+        2. 注入 session.refined_history ✅
+        3. 追加最新 user_input ✅
+        4. 追加结构化输出要求 (JSON Schema 描述) ✅
+      - [x] 返回：OpenAI 格式的字典列表 `[{"role": "system", "content": "..."}, ...]` ✅
+    - [x] 支持多模型消息格式，通过 schema 差异化处理 ✅
+
+## 3.4 NPC 档案加载器
+- [x] 创建文件：`src/core/loaders/npc_loader.py` ✅
+  - [x] 定义类：`NPCLoader` ✅
+    - [x] 加载 `assets/npc/{npc_name}/persona.yaml` ✅
+    - [x] 加载 `assets/npc/{npc_name}/relationships.yaml` ✅
+    - [x] 加载 `assets/npc/{npc_name}/memories/*.yaml` ✅
+
+## 3.5 引擎核心门面
+- [x] 创建文件：`src/core/engine.py` ✅
+  - [x] 定义类：`EngineCore` ✅
+    - [x] 整合 SessionManager、AssetManager、PromptOrchestrator、ClientManager ✅
+    - [x] 提供统一 `chat()` 入口 ✅
+    - [x] 实现 `search_world` 工具调用 ✅
