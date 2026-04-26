@@ -180,7 +180,7 @@ session.add_message("assistant", llm_response["content"])
 ```yaml
 narrator:
   model: "minimax_m2_her"
-  max_tokens: 200
+  max_tokens: 300
   temperature: 0.8
   # 旁白需要快速生成，使用较小token限制
 ```

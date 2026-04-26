@@ -43,9 +43,9 @@ class NarrativeContext(Enum):
 
 ## 5. 叙事风格约束
 
-**禁止使用确定性措辞**，必须使用模糊/非确定性表达：
-- ✅ "似乎"、"也许"、"隐约感到"、"好像"、"似乎在想着"
-- ❌ "确定地"、"清楚地知道"、"毫无疑问"
+**减少使用确定性措辞**，使用模糊/非确定性表达：
+- good: "似乎"、"也许"、"隐约感到"、"好像"、"似乎在想着"
+- not so good: "确定地"、"清楚地知道"、"毫无疑问"
 
 ## 6. 与其他模块的配合
 
@@ -77,7 +77,7 @@ class NarrativeOutput:
 ```yaml
 narrator:
   model: "minimax_m2_her"
-  max_tokens: 150  # 心理描写较短，token限制更小
+  max_tokens: 300  # 心理描写较短，token限制更小
   temperature: 0.7  # 略低，保持叙事一致性
 ```
 

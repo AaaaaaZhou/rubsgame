@@ -206,7 +206,7 @@ class ConversationSession:
 ```yaml
 option_generator:
   model: "minimax_m2_her"
-  max_tokens: 150
+  max_tokens: 300
   temperature: 0.9
   # 选项生成需要一定随机性，temperature稍高
 ```
