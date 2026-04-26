@@ -8,7 +8,7 @@
 
 ## 核心概念
 
-NarratorGenerator 根据 NarrativeContext 生成四类旁白：场景描述、情绪渲染、剧情过渡、行动描述。
+NarratorGenerator 根据 NarrativeContext 生成五类旁白：场景描述、情绪渲染、剧情过渡、行动描述、心理活动（INNER_MONOLOGUE）。
 
 ## 文件: src/core/plot/narrator.py
 
@@ -43,7 +43,8 @@ CONTEXT_LENGTHS = {
     NarrativeContext.ACTION_RESULT: "2-3",
     NarrativeContext.CHAPTER_START: "2-3",
     NarrativeContext.CHAPTER_END: "1-2",
-    NarrativeContext.FREE_EXPLORE: "1-2"
+    NarrativeContext.FREE_EXPLORE: "1-2",
+    NarrativeContext.INNER_MONOLOGUE: "1-2"
 }
 
 
@@ -88,6 +89,7 @@ class NarratorGenerator:
         chapter_name: str = "",
         node_id: str = "",
         action_description: Optional[str] = None,
+        npc_name: Optional[str] = None,
         extra_context: Optional[str] = None
     ) -> NarrativeOutput:
         """生成旁白"""
@@ -95,7 +97,7 @@ class NarratorGenerator:
         style = EMOTION_STYLES.get(emotion, "平实自然")
         length = CONTEXT_LENGTHS.get(context, "2")
 
-        requirements = self._get_context_requirements(context, action_description)
+        requirements = self._get_context_requirements(context, action_description, npc_name)
 
         prompt = self.PROMPT_TEMPLATE.format(
             narrative_context=self._get_context_name(context),
@@ -135,11 +137,12 @@ class NarratorGenerator:
             NarrativeContext.ACTION_RESULT: "行动结果描述",
             NarrativeContext.CHAPTER_START: "章节开始",
             NarrativeContext.CHAPTER_END: "章节结束",
-            NarrativeContext.FREE_EXPLORE: "自由探索"
+            NarrativeContext.FREE_EXPLORE: "自由探索",
+            NarrativeContext.INNER_MONOLOGUE: "心理活动描写"
         }
         return names.get(context, "场景描述")
 
-    def _get_context_requirements(self, context: NarrativeContext, action_desc: Optional[str]) -> str:
+    def _get_context_requirements(self, context: NarrativeContext, action_desc: Optional[str], npc_name: Optional[str] = None) -> str:
         requirements = {
             NarrativeContext.SCENE_ENTER: "描写新场景的环境细节，营造氛围",
             NarrativeContext.SCENE_EXIT: "描述离开的场景，留下悬念",
@@ -148,7 +151,8 @@ class NarratorGenerator:
             NarrativeContext.ACTION_RESULT: f"描述玩家执行「{action_desc or='行动'}」后的结果",
             NarrativeContext.CHAPTER_START: "描写新章节的开场，给玩家期待感",
             NarrativeContext.CHAPTER_END: "留下悬念或情感余韵",
-            NarrativeContext.FREE_EXPLORE: "简洁描述当前状态，给玩家方向感"
+            NarrativeContext.FREE_EXPLORE: "简洁描述当前状态，给玩家方向感",
+            NarrativeContext.INNER_MONOLOGUE: f"从NPC {npc_name or='某角色'} 视角描写其内心状态，使用模糊/非确定性措辞（如"似乎"、"也许"、"隐约感到"），减少使用确定性措辞"
         }
         return requirements.get(context, "")
 
@@ -161,7 +165,8 @@ class NarratorGenerator:
             NarrativeContext.ACTION_RESULT: "medium",
             NarrativeContext.CHAPTER_START: "long",
             NarrativeContext.CHAPTER_END: "short",
-            NarrativeContext.FREE_EXPLORE: "short"
+            NarrativeContext.FREE_EXPLORE: "short",
+            NarrativeContext.INNER_MONOLOGUE: "short"
         }
         return durations.get(context, "short")
 ```
@@ -282,6 +287,6 @@ class TestNarratorGenerator:
 ```yaml
 narrator:
   model: "minimax_m2_her"
-  max_tokens: 200
-  temperature: 0.8
+  max_tokens: 300
+  temperature: 0.7
 ```
