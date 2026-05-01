@@ -15,7 +15,7 @@ _logger = get_logger("rubsgame.interface")
 
 
 SPINNER_MESSAGES = [
-    "土豆服务器培育中",
+    "尝试从土里挖出新鲜的服务器",
     "异世界召唤中",
     "LLM正在思考人生",
     "正在煮一杯AI拿铁",
