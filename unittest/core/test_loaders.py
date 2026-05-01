@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import pytest
 from unittest.mock import patch
-from src.core.loaders import FileReader, YamlFileReader, BaseDataLoader, PersonaLoader, WorldLoader
+from src.core.loaders import FileReader, YamlFileReader, BaseDataLoader, WorldLoader
 from src.core.persona import Persona
 from src.core.world_model import WorldKnowledge
 
@@ -149,113 +149,6 @@ class TestBaseDataLoader:
         path = loader._get_file_path("data", ".json")
         expected = os.path.join("/base/dir", "data.json")
         assert path == expected
-
-
-class TestPersonaLoader:
-    """测试人设加载器"""
-    
-    def test_load_persona_from_mock_data(self):
-        """测试从模拟数据加载人设"""
-        mock_yaml_data = {
-            "name": "Test Character",
-            "gender": "female",
-            "age": 25,
-            "identity": "adventurer",
-            "background": {
-                "education": "Guild training",
-                "dreams": ["Explore ancient ruins"]
-            },
-            "personality": {
-                "core_traits": ["brave", "curious"]
-            },
-            "emotion": {
-                "default": "curious",
-                "allowed": ["curious", "excited", "neutral"],
-                "blocked": ["angry"],
-                "intensity": 0.8,
-                "material_package": "kaomoji_cute"
-            }
-        }
-        
-        mock_reader = MockFileReader({
-            "/personas/test.yaml": mock_yaml_data
-        })
-        
-        loader = PersonaLoader(mock_reader, "/personas")
-        
-        persona = loader.load("test")
-        
-        assert isinstance(persona, Persona)
-        assert persona.name == "Test Character"
-        assert "Test Character" in persona.system_prompt
-        assert "female" in persona.system_prompt
-        assert "adventurer" in persona.system_prompt
-        
-        assert persona.emotion_config.default_emotion == "curious"
-        assert set(persona.emotion_config.allowed_emotions) == {"curious", "excited", "neutral"}
-        assert persona.emotion_config.blocked_emotions == ["angry"]
-        assert persona.emotion_config.expression_intensity == 0.8
-        assert persona.emotion_config.material_package == "kaomoji_cute"
-        
-        assert persona.raw_data == mock_yaml_data
-    
-    def test_load_persona_file_not_found(self):
-        """测试加载不存在的文件"""
-        mock_reader = MockFileReader({})
-        loader = PersonaLoader(mock_reader, "/personas")
-        
-        with pytest.raises(FileNotFoundError):
-            loader.load("nonexistent")
-    
-    def test_persona_caching(self):
-        """测试人设缓存"""
-        mock_yaml_data = {"name": "Cached Character"}
-        mock_reader = MockFileReader({"/personas/cached.yaml": mock_yaml_data})
-        
-        loader = PersonaLoader(mock_reader, "/personas")
-        
-        # 第一次加载
-        persona1 = loader.load("cached")
-        assert len(loader.get_cached_personas()) == 1
-        
-        # 第二次加载应返回缓存
-        persona2 = loader.load("cached")
-        assert persona1 is persona2  # 应该是同一个对象
-        
-        # 重新加载应清除缓存
-        persona3 = loader.reload("cached")
-        assert persona1 is not persona3  # 应该是新对象
-        
-        # 清除所有缓存
-        loader.clear_cache()
-        assert len(loader.get_cached_personas()) == 0
-    
-    @patch('os.path.exists')
-    @patch('os.listdir')
-    def test_load_all_personas(self, mock_listdir, mock_exists):
-        """测试加载所有人设"""
-        mock_reader = MockFileReader({
-            "/personas/char1.yaml": {"name": "Character 1"},
-            "/personas/char2.yaml": {"name": "Character 2"},
-            "/personas/not_yaml.txt": {"name": "Should be ignored"}
-        })
-        
-        loader = PersonaLoader(mock_reader, "/personas")
-        
-        # 模拟 os.path.exists 返回 True
-        mock_exists.return_value = True
-        # 模拟 os.listdir 返回文件列表
-        mock_listdir.return_value = ["char1.yaml", "char2.yaml", "not_yaml.txt"]
-        
-        personas = loader.load_all()
-        
-        assert len(personas) == 2
-        assert "char1" in personas
-        assert "char2" in personas
-        assert "not_yaml" not in personas
-        
-        assert personas["char1"].name == "Character 1"
-        assert personas["char2"].name == "Character 2"
 
 
 class TestWorldLoader:
@@ -400,35 +293,7 @@ class TestWorldLoader:
 
 class TestIntegration:
     """集成测试"""
-    
-    def test_persona_and_session_integration(self):
-        """测试人设和会话的集成"""
-        from src.core.session import ConversationSession
-        
-        # 创建人设
-        mock_yaml_data = {
-            "name": "Integration Test Character",
-            "emotion": {"default": "happy"}
-        }
-        
-        mock_reader = MockFileReader({
-            "/personas/integration.yaml": mock_yaml_data
-        })
-        
-        persona_loader = PersonaLoader(mock_reader, "/personas")
-        persona = persona_loader.load("integration")
-        
-        # 创建会话并绑定该人设
-        session = ConversationSession(
-            session_id="integration-test",
-            bound_persona_file="integration.yaml"
-        )
-        
-        assert session.bound_npc_id == "integration.yaml"
-        
-        # 验证人设的情绪配置会影响会话（未来扩展）
-        # 目前只是文件名字符串绑定
-    
+
     def test_world_and_memory_integration(self):
         """测试世界观和记忆的集成"""
         from src.core.types import MemoryItem

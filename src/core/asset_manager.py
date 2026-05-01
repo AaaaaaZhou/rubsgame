@@ -11,7 +11,6 @@ from .world_model import WorldKnowledge, Location
 from .types import MemoryItem
 from .npc import NPCProfile
 from .loaders.base import YamlFileReader
-from .loaders.persona_loader import PersonaLoader
 from .loaders.world_loader import WorldLoader
 from .loaders.npc_loader import NPCLoader
 from ..utils.config import AppConfig
@@ -31,10 +30,6 @@ class AssetManager:
         AssetManager._instance = self
 
         self._config = config or AppConfig.get_instance()
-        self._persona_loader = PersonaLoader(
-            YamlFileReader(),
-            self._config.persona_dir
-        )
         self._world_loader = WorldLoader(
             YamlFileReader(),
             self._config.world_dir
@@ -53,23 +48,6 @@ class AssetManager:
         if cls._instance is None:
             cls()
         return cls._instance
-
-    # ==================== Persona ====================
-
-    def load_persona(self, persona_name: str) -> Persona:
-        """加载人设"""
-        persona = self._persona_loader.load(persona_name)
-        self._current_persona = persona
-        _logger.info(f"Loaded persona: {persona_name}")
-        return persona
-
-    def get_current_persona(self) -> Optional[Persona]:
-        return self._current_persona
-
-    def hot_reload_persona(self, persona_name: str) -> Persona:
-        """热加载人设（清除缓存后重新加载）"""
-        self._persona_loader.reload(persona_name)
-        return self.load_persona(persona_name)
 
     # ==================== World ====================
 
@@ -126,10 +104,6 @@ class AssetManager:
         if self._current_persona is None:
             return ""
         return self._current_persona.get_system_context()
-
-    def get_persona_emotion_config(self) -> Optional[Persona]:
-        """获取当前人设（包含情绪配置）"""
-        return self._current_persona
 
     # ==================== NPC ====================
 

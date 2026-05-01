@@ -73,7 +73,6 @@ class AppConfig:
         self.chat_model = "deepseek-reasoner"
         self.refine_model = "deepseek-reasoner"
 
-        self.persona_dir = "assets/personas/"
         self.npc_dir = "assets/npc/"
         self.world_dir = "assets/world/"
         self.material_dir = "assets/materials/"
@@ -187,7 +186,6 @@ class AppConfig:
     def _load_env_config(self) -> Dict[str, Any]:
         env_config = {}
         mappings = {
-            "PERSONA_DIR": "persona_dir",
             "WORLD_DIR": "world_dir",
             "MATERIAL_DIR": "material_dir",
             "SESSION_DIR": "session_dir",
@@ -246,7 +244,6 @@ class AppConfig:
 
     def get_paths_config(self) -> Dict[str, str]:
         return {
-            "persona_dir": self.persona_dir,
             "npc_dir": self.npc_dir,
             "world_dir": self.world_dir,
             "material_dir": self.material_dir,
