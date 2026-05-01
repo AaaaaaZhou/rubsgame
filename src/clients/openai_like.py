@@ -186,8 +186,8 @@ class LLMDebugFormatter:
     def _box_top(self, label: str, model: str) -> str:
         width = 60
         if model:
-            return f"┌─ {label} ({model}) {'─' * (width - len(label) - len(model) - 4)}"
-        return f"┌─ {label} {'─' * (width - len(label) - 3)}"
+            return f"\n┌─ {label} ({model}) {'─' * (width - len(label) - len(model) - 4)}"
+        return f"\n┌─ {label} {'─' * (width - len(label) - 3)}"
 
     def _box_bottom(self) -> str:
         return "└" + "─" * 61
