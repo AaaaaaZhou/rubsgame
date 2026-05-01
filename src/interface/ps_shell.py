@@ -14,6 +14,21 @@ from ..utils.logger import get_logger
 _logger = get_logger("rubsgame.interface")
 
 
+SPINNER_MESSAGES = [
+    "土豆服务器培育中",
+    "异世界召唤中",
+    "LLM正在思考人生",
+    "正在煮一杯AI拿铁",
+    "让NPC想想怎么回复",
+    "赛博脑细胞燃烧中",
+    "正在组织语言",
+]
+
+def _random_spinner_message() -> str:
+    import random
+    return random.choice(SPINNER_MESSAGES)
+
+
 class Spinner:
     """终端旋转动画"""
 
@@ -133,7 +148,7 @@ class PowerShellInterface:
 
     def _do_chat(self, user_input: str) -> None:
         """处理对话"""
-        spinner = Spinner("等待服务器响应")
+        spinner = Spinner(_random_spinner_message())
         spinner.start()
         try:
             result = self._engine.chat(user_input, self._current_session_id)
