@@ -30,6 +30,7 @@ class ConversationSession:
         self.full_history: List[Message] = []        # 完整历史（永不删除）
         self.refined_history: List[Message] = []     # 精炼历史（用于Prompt）
         self.session_memories: List[MemoryItem] = [] # 会话专属记忆
+        self.last_access_time: float = time.time()   # 最后访问时间
         self._logger = logger or logging.getLogger(f"session.{session_id}")
         self._logger.info(f"Session {session_id} initialized")
     
@@ -55,13 +56,13 @@ class ConversationSession:
     
     def add_memory(self, content: str, memory_type: str, priority: int = 5, tags: Optional[List[str]] = None) -> MemoryItem:
         """添加记忆项
-        
+
         Args:
             content: 记忆内容
             memory_type: 记忆类型 (session_local/world_global)
             priority: 优先级 (0-10)
             tags: 标签列表
-            
+
         Returns:
             创建的MemoryItem对象
         """
@@ -74,6 +75,11 @@ class ConversationSession:
         self.session_memories.append(memory)
         self._logger.debug(f"Added {memory_type} memory: {content[:50]}...")
         return memory
+
+    def update_access_time(self) -> None:
+        """更新访问时间"""
+        self.last_access_time = time.time()
+        self._logger.debug(f"Access time updated: {self.last_access_time}")
     
     def to_dict(self) -> Dict[str, Any]:
         """转换为可序列化的字典
@@ -87,6 +93,7 @@ class ConversationSession:
             "full_history": [msg.to_dict() for msg in self.full_history],
             "refined_history": [msg.to_dict() for msg in self.refined_history],
             "session_memories": [mem.to_dict() for mem in self.session_memories],
+            "last_access_time": self.last_access_time,
         }
 
     @classmethod
@@ -116,7 +123,10 @@ class ConversationSession:
         # 恢复记忆
         for mem_data in data.get("session_memories", []):
             session.session_memories.append(MemoryItem.from_dict(mem_data))
-        
+
+        # 恢复访问时间
+        session.last_access_time = data.get("last_access_time", time.time())
+
         session._logger.info(f"Session {session.session_id} restored from dict")
         return session
     

@@ -267,18 +267,40 @@ class TestConversationSession:
     def test_session_str_repr(self):
         """测试字符串表示"""
         session = ConversationSession(session_id="test-123")
-        
+
         session.add_message("user", "Hello")
         session.add_memory("记忆", "session_local")
-        
+
         str_repr = str(session)
         assert "test-123" in str_repr
         assert "messages=1" in str_repr
         assert "memories=1" in str_repr
-        
+
         repr_repr = repr(session)
         assert "ConversationSession" in repr_repr
         assert "test-123" in repr_repr
+
+    def test_update_access_time(self):
+        """测试访问时间更新"""
+        session = ConversationSession(session_id="test-123")
+        original = session.last_access_time
+
+        import time
+        time.sleep(0.01)
+        session.update_access_time()
+
+        assert session.last_access_time > original
+
+    def test_session_with_last_access_time(self):
+        """测试带 last_access_time 的序列化"""
+        session = ConversationSession(session_id="test-123")
+        session.update_access_time()
+
+        data = session.to_dict()
+        assert "last_access_time" in data
+
+        restored = ConversationSession.from_dict(data)
+        assert abs(restored.last_access_time - session.last_access_time) < 0.001
 
 
 if __name__ == "__main__":

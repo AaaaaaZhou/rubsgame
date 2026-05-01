@@ -64,12 +64,17 @@ class PromptOrchestrator:
         if mem_ctx:
             parts.append(f"[NPC Private Memory]\n{mem_ctx}")
 
-        # 5. Memory Context
+        # 5. NPC Private Short time memory
         if include_memory and session.session_memories:
-            session_mem = self._build_memory_context(session.session_memories)
-            parts.append(f"[Memory]\n{session_mem}")
+            short_term = self._build_memory_context(session.session_memories)
+            parts.append(f"[NPC Private Short time memory]\n{short_term}")
 
-        # 6. Output Constraint
+        # 6. NPC Private refined history
+        if session.refined_history:
+            long_term = self._format_long_term_history(session.refined_history)
+            parts.append(f"[NPC Private refined history]\n{long_term}")
+
+        # 7. Output Constraint
         parts.append(f"[Output Format]\nYou must respond in valid JSON:\n{self._format_schema()}")
 
         system_content = "\n\n".join(parts)
@@ -96,7 +101,29 @@ class PromptOrchestrator:
         for m in memories:
             tag_str = f"[{', '.join(m.tags)}]" if m.tags else ""
             lines.append(f"- {m.content} {tag_str}")
-        return "\n".join(lines) if lines else "No memories yet."
+        return "\n".join(lines) if lines else "（无）"
+
+    def _format_long_term_history(self, messages: List[Message]) -> str:
+        """格式化长期历史为可读文本
+
+        Args:
+            messages: refined_history 中的消息列表
+
+        Returns:
+            格式化的长期历史文本
+        """
+        if not messages:
+            return "（无）"
+
+        lines = []
+        for msg in messages:
+            # 跳过 system 消息
+            if msg.role == "system":
+                continue
+            role_label = {"user": "用户", "assistant": "NPC"}.get(msg.role, msg.role)
+            content = msg.content[:200] + "..." if len(msg.content) > 200 else msg.content
+            lines.append(f"{role_label}: {content}")
+        return "\n".join(lines) if lines else "（无）"
 
     def _format_schema(self) -> str:
         import json

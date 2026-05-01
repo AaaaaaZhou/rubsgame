@@ -82,6 +82,10 @@ class BalancedHistoryRefiner(BaseHistoryRefiner):
         keep_recent = strategy.keep_recent_turns
         total_turns = len(dialog_msgs) // 2  # 每轮包含 user + assistant
 
+        # 长期历史：更激进压缩
+        # keep_recent 设为更小值，短期记忆承接更多信息
+        keep_recent = max(4, keep_recent // 2)
+
         # 构建精炼历史
         refined: List[Message] = []
 
@@ -167,8 +171,8 @@ class BalancedHistoryRefiner(BaseHistoryRefiner):
         )
         refined.append(summary_msg)
 
-        # 保留最近的对话
-        keep_recent = strategy.keep_recent_turns
+        # 保留最近的对话（更激进压缩）
+        keep_recent = max(4, strategy.keep_recent_turns // 2)
         refined.extend(dialog_msgs[-keep_recent * 2:] if keep_recent > 0 else [])
 
         # 尾部系统消息

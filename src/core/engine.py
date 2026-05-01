@@ -83,22 +83,42 @@ class EngineCore:
                 "content": str,
                 "emotion": str,
                 "intensity": float,
-                "session_id": str
+                "session_id": str,
+                "refined": bool
             }
         """
         session = self.get_or_create_session(session_id)
 
-        # 1. 构建 Prompt
+        # 1. 更新访问时间
+        self._session_mgr.update_access_time(session_id)
+
+        # 2. 阈值边界检查
+        refined = False
+        if self._should_trigger_refine(session):
+            if self._dev_mode:
+                # 同步精炼（阻塞）
+                memory_mgr = self._get_memory_manager()
+                memory_mgr.refine_and_extract(session, force=False)
+                refined = True
+            else:
+                # 后台线程（非阻塞）
+                import threading
+                threading.Thread(
+                    target=self._refine_in_background,
+                    args=(session_id,)
+                ).start()
+
+        # 3. 构建消息
         messages = self._orchestrator.build_messages(session, user_input)
 
-        # 2. 调用 LLM（支持 tool calling）
+        # 4. 调用 LLM（支持 tool calling）
         client = self._client_mgr.get_client_with_asset_manager(self._asset_mgr)
         response_text = client.chat_with_tools(messages, tools=self.WORLD_TOOLS)
 
-        # 3. 解析结构化输出
+        # 5. 解析结构化输出
         parsed = self._parse_response(response_text)
 
-        # 4. 记录历史（非 dev mode）
+        # 6. 记录历史（非 dev mode）
         if not self._dev_mode:
             session.add_message("user", user_input)
             session.add_message("assistant", parsed["content"])
@@ -108,8 +128,34 @@ class EngineCore:
             "content": parsed["content"],
             "emotion": parsed["emotion"],
             "intensity": parsed["intensity"],
-            "session_id": session_id
+            "session_id": session_id,
+            "refined": refined
         }
+
+    def _should_trigger_refine(self, session: ConversationSession) -> bool:
+        """检查是否需要触发精炼
+
+        阈值条件：
+        - Token ≥ 4000（可配置）
+        - 或对话轮次 ≥ 20（可配置）
+        """
+        tokens = session.estimate_tokens()
+        turns = len(session.full_history) // 2  # user + assistant = 1 turn
+        config = self._config.get_memory_config()
+        return (tokens >= config["refine_threshold_tokens"] or
+                turns >= config["refine_max_turns"])
+
+    def _refine_in_background(self, session_id: str) -> None:
+        """后台精炼任务（非阻塞）"""
+        try:
+            session = self._session_mgr.get_session(session_id)
+            if session:
+                memory_mgr = self._get_memory_manager()
+                memory_mgr.refine_and_extract(session, force=False)
+                self._session_mgr.save_session(session)
+                _logger.info(f"Background refinement completed for {session_id}")
+        except Exception as e:
+            _logger.error(f"Background refinement failed for {session_id}: {e}")
 
     def _parse_response(self, text: str) -> Dict[str, Any]:
         """解析 LLM 返回，尝试提取 JSON 结构化内容"""

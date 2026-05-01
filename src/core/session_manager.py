@@ -72,6 +72,14 @@ class SessionManager:
         """获取会话（不创建）"""
         return self._sessions.get(session_id)
 
+    def update_access_time(self, session_id: str) -> None:
+        """更新会话访问时间并持久化"""
+        session = self.get_session(session_id)
+        if session:
+            session.update_access_time()
+            self.save_session(session)
+            _logger.debug(f"Updated access time for session {session_id}")
+
     def append_message(
         self,
         session: ConversationSession,
