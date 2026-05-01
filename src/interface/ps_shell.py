@@ -4,12 +4,43 @@ PowerShell 交互界面模块
 """
 import sys
 import logging
+import threading
+import time
 from typing import Optional, Tuple
 
 from ..core.engine import EngineCore
 from ..utils.logger import get_logger
 
 _logger = get_logger("rubsgame.interface")
+
+
+class Spinner:
+    """终端旋转动画"""
+
+    def __init__(self, message: str = "思考中"):
+        self._message = message
+        self._running = False
+        self._thread: Optional[threading.Thread] = None
+
+    def _spin(self) -> None:
+        chars = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+        idx = 0
+        while self._running:
+            print(f"\r{chars[idx % len(chars)]} {self._message}...", end="", flush=True)
+            idx += 1
+            time.sleep(0.1)
+        # 清除 spinner
+        print("\r" + " " * (len(self._message) + 10) + "\r", end="", flush=True)
+
+    def start(self) -> None:
+        self._running = True
+        self._thread = threading.Thread(target=self._spin, daemon=True)
+        self._thread.start()
+
+    def stop(self) -> None:
+        self._running = False
+        if self._thread:
+            self._thread.join(timeout=1)
 
 
 class PowerShellInterface:
@@ -102,7 +133,12 @@ class PowerShellInterface:
 
     def _do_chat(self, user_input: str) -> None:
         """处理对话"""
-        result = self._engine.chat(user_input, self._current_session_id)
+        spinner = Spinner("等待服务器响应")
+        spinner.start()
+        try:
+            result = self._engine.chat(user_input, self._current_session_id)
+        finally:
+            spinner.stop()
         self._render_output(result)
 
     def _do_exit(self) -> None:
