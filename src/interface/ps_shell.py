@@ -71,12 +71,16 @@ class PowerShellInterface:
         "/sessions": "列出所有会话",
         "/models": "显示所有可用模型 (dev mode)",
         "/model": "切换对话模型 (用法: /model <model_name>, dev mode)",
+        "/vn": "开启视觉小说模式",
+        "/chapter": "开始章节 (用法: /chapter <chapter_id>)",
         "/exit": "退出 (自动保存)",
         "/help": "显示帮助",
     }
 
     def __init__(self, engine: EngineCore, dev_mode: bool = False):
         self._engine = engine
+        self._vn_mode = False  # 视觉小说模式
+        self._game_loop = None  # GameLoopController 延迟初始化
         self._current_session_id = "default"
         self._emotion_enabled = True
         self._dev_mode = dev_mode
@@ -86,7 +90,7 @@ class PowerShellInterface:
         """dev_mode=False 时，只允许 /save /load /exit /help 和普通对话"""
         if self._dev_mode:
             return True
-        return cmd in ("/save", "/load", "/exit", "/help")
+        return cmd in ("/save", "/load", "/exit", "/help", "/vn", "/chapter")
 
     def run_repl(self) -> None:
         """主 REPL 循环"""
@@ -126,6 +130,10 @@ class PowerShellInterface:
                         self._do_models()
                     elif cmd == "/model":
                         self._do_model(args)
+                    elif cmd == "/vn":
+                        self._do_vn(args)
+                    elif cmd == "/chapter":
+                        self._do_chapter(args)
                     else:
                         print(f"未知指令: {cmd}，输入 /help 查看帮助")
                 else:
@@ -151,7 +159,13 @@ class PowerShellInterface:
         spinner = Spinner(_random_spinner_message())
         spinner.start()
         try:
-            result = self._engine.chat(user_input, self._current_session_id)
+            if self._vn_mode and self._game_loop:
+                # Visual novel mode: use GameLoopController
+                session = self._engine.get_or_create_session(self._current_session_id)
+                result = self._game_loop.process_input(user_input, session)
+            else:
+                # Normal mode: direct engine.chat()
+                result = self._engine.chat(user_input, self._current_session_id)
         finally:
             spinner.stop()
         self._render_output(result)
@@ -247,8 +261,18 @@ class PowerShellInterface:
         else:
             print("暂无会话")
 
-    def _render_output(self, result: dict) -> None:
-        """渲染输出"""
+    def _render_output(self, result) -> None:
+        """渲染输出（支持普通对话结果和GameLoopOutput）"""
+        # 判断是普通dict还是GameLoopOutput
+        if isinstance(result, dict):
+            # 普通引擎返回
+            self._render_normal_output(result)
+        else:
+            # GameLoopOutput
+            self._render_vn_output(result)
+
+    def _render_normal_output(self, result: dict) -> None:
+        """渲染普通对话输出"""
         content = result["content"]
         emotion = result.get("emotion", "neutral")
         intensity = result.get("intensity", 0.5)
@@ -256,9 +280,99 @@ class PowerShellInterface:
         print(f"\n[AI] {content}")
 
         if self._emotion_enabled:
-            # TODO: Phase 4 接入素材渲染引擎
             emotion_symbol = self._emotion_symbol(emotion, intensity)
             print(f"       {emotion_symbol}")
+
+    def _render_vn_output(self, result) -> None:
+        """渲染视觉小说模式输出"""
+        # 渲染旁白
+        if result.narrative:
+            narrative_text = result.narrative.text
+            print(f"\n【旁白】{narrative_text}")
+
+        # 渲染NPC回应
+        if result.npc_response:
+            print(f"\n[NPC] {result.npc_response}")
+
+        # 渲染选项
+        if result.options and result.options.options:
+            self._render_options(result.options)
+
+        # 游戏结束
+        if result.is_game_over:
+            print("\n=== 章节结束 ===")
+
+    def _render_options(self, options_output) -> None:
+        """渲染选项"""
+        print("\n[选项]")
+        for i, opt in enumerate(options_output.options, 1):
+            print(f"  {i}. {opt.content}")
+
+    def _do_vn(self, args: list) -> None:
+        """开启视觉小说模式"""
+        if self._vn_mode:
+            print("视觉小说模式已开启")
+            return
+
+        self._init_game_loop()
+        self._vn_mode = True
+        print("视觉小说模式已开启。使用 /chapter <id> 开始章节。")
+
+    def _do_chapter(self, args: list) -> None:
+        """开始章节"""
+        if not args:
+            print("用法: /chapter <chapter_id>")
+            return
+
+        chapter_id = args[0]
+
+        if not self._vn_mode:
+            print("请先输入 /vn 开启视觉小说模式")
+            return
+
+        if not self._game_loop:
+            self._init_game_loop()
+
+        session = self._engine.get_or_create_session(self._current_session_id)
+
+        # 设置默认位置
+        if not session.current_location:
+            session.current_location = "老街"
+
+        spinner = Spinner("加载章节中")
+        spinner.start()
+        try:
+            output = self._game_loop.start_chapter(chapter_id, session)
+        finally:
+            spinner.stop()
+
+        self._render_output(output)
+
+    def _init_game_loop(self) -> None:
+        """延迟初始化 GameLoopController"""
+        if self._game_loop is not None:
+            return
+
+        try:
+            from ..core.plot.game_loop import GameLoopController
+            from ..core.plot.plot_manager import StoryPlotManager
+
+            # 创建/获取 PlotManager
+            if not hasattr(self, '_plot_mgr'):
+                self._plot_mgr = StoryPlotManager(
+                    asset_manager=self._engine._asset_mgr,
+                    plot_dir="assets/plot/"
+                )
+
+            self._game_loop = GameLoopController(
+                engine=self._engine,
+                asset_manager=self._engine._asset_mgr,
+                plot_manager=self._plot_mgr,
+                client_manager=self._engine._client_mgr
+            )
+        except Exception as e:
+            print(f"[Warning] GameLoopController初始化失败: {e}")
+            self._game_loop = None
 
     def _emotion_symbol(self, emotion: str, intensity: float) -> str:
         """简单的情绪符号映射（后续由素材引擎替换）"""

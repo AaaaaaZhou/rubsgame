@@ -1,0 +1,176 @@
+chapter:
+  id: "qingxi_chapter1"
+  name: "初遇清溪镇"
+
+nodes:
+  # ============================================================
+  # 第一幕·开场：场景描写 + Alice主动搭话
+  # ============================================================
+  - id: "n_start"
+    node_type: "NARRATION_ONLY"
+    narration_type: "SCENE_ENTER"
+    content: "你第一次来到清溪镇的老街"
+    next: "n_alice_greet"
+
+  - id: "n_alice_greet"
+    node_type: "NPC_INTERACT"
+    npc_name: "alice"
+    content: "「欢迎光临，迷路了吗？」艾莉丝从咖啡店的吧台后抬起头，轻声问道。"
+    narration_type: "CHAPTER_START"
+    next: "n_first_choice"
+
+  # ============================================================
+  # 第二幕·分支点：含空白选项
+  # ============================================================
+  - id: "n_first_choice"
+    node_type: "BRANCH"
+    narration_type: "FREE_EXPLORE"
+    branches:
+      - id: "b_enter_cafe"
+        label: "进店坐下"
+        condition: null
+        next_node: "n_cafe_interaction"
+      - id: "b_go_river"
+        label: "去河边看看"
+        condition: null
+        next_node: "n_river_bob"
+      - id: "b_free_input"
+        label: "（自由输入）"
+        condition: null
+        next_node: "n_free_response"
+
+  # ============================================================
+  # 分支A：进店 → 与Alice深入对话
+  # ============================================================
+  - id: "n_cafe_interaction"
+    node_type: "DIALOGUE"
+    npc_name: "alice"
+    content: "「要喝点什么吗？」艾莉丝递上菜单，目光柔和。店里飘着淡淡的咖啡香，角落的老式留声机正播放着轻柔的音乐。"
+    next: "n_cafe_deep_talk"
+
+  - id: "n_cafe_deep_talk"
+    node_type: "DIALOGUE"
+    npc_name: "alice"
+    content: "「你是第一次来老街吧？这里虽然小，但每个小店都有自己的故事。」她微微一笑，声音轻柔。"
+
+  - id: "n_cafe_choice"
+    node_type: "BRANCH"
+    narration_type: "FREE_EXPLORE"
+    branches:
+      - id: "b_ask_stories"
+        label: "询问老街的故事"
+        condition: null
+        next_node: "n_alice_story"
+      - id: "b_ask_future"
+        label: "问她未来的打算"
+        condition: null
+        next_node: "n_alice_future"
+      - id: "b_cafe_free"
+        label: "（自由输入）"
+        condition: null
+        next_node: "n_cafe_free_response"
+
+  - id: "n_alice_story"
+    node_type: "DIALOGUE"
+    npc_name: "alice"
+    content: "「回龙桥是我们镇最老的地方……传说端午时会有人看见龙影。」艾莉丝的眼眸中映出几分向往，「可惜我还没亲眼见过。」"
+    next: "n_chapter_end"
+
+  - id: "n_alice_future"
+    node_type: "DIALOGUE"
+    npc_name: "alice"
+    content: "「想去沿海城市看看……」她的声音轻了几分，「那里有我没有见过的海。」"
+    next: "n_chapter_end"
+
+  - id: "n_cafe_free_response"
+    node_type: "NARRATION_ONLY"
+    narration_type: "ACTION_RESULT"
+    content: "艾莉丝认真听完你的话，若有所思地点点头。"
+
+  - id: "n_chapter_end"
+    node_type: "NARRATION_ONLY"
+    narration_type: "CHAPTER_END"
+    content: "午后的阳光透过咖啡店的玻璃窗洒落，在桌面上投下斑驳的光影。这一刻，仿佛时间都慢了下来。"
+
+  # ============================================================
+  # 分支B：去河边 → 遇见Bob
+  # ============================================================
+  - id: "n_river_bob"
+    node_type: "NPC_INTERACT"
+    npc_name: "bob"
+    narration_type: "SCENE_ENTER"
+    content: "你沿着清溪河边的石板路走着，远远看见Bob正坐在河边垂钓。"
+    next: "n_bob_talk"
+
+  - id: "n_bob_talk"
+    node_type: "DIALOGUE"
+    npc_name: "bob"
+    content: "「哟！是你啊！」Bob看见你，兴奋地挥手，「来来来，陪我钓鱼！这河里鱼可多了。」"
+    next: "n_bob_choice"
+
+  - id: "n_bob_choice"
+    node_type: "BRANCH"
+    narration_type: "FREE_EXPLORE"
+    branches:
+      - id: "b_stay_fish"
+        label: "留下来陪他钓鱼"
+        condition: null
+        next_node: "n_fishing"
+      - id: "b_ask_spot"
+        label: "问他有什么好去处"
+        condition: null
+        next_node: "n_bob_spot"
+      - id: "b_river_free"
+        label: "（自由输入）"
+        condition: null
+        next_node: "n_river_free_response"
+
+  - id: "n_fishing"
+    node_type: "DIALOGUE"
+    npc_name: "bob"
+    content: "「哈哈，这条鱼够大了！晚上可以烤鱼吃！」Bob利落地收竿，笑得像个孩子，「你运气不错嘛。」"
+    next: "n_chapter_end"
+
+  - id: "n_bob_spot"
+    node_type: "DIALOGUE"
+    npc_name: "bob"
+    content: "「必须有啊！松林观景台，那里的晚霞简直了！」Bob眼睛一亮，「改天我带你去，保证不虚此行。」"
+    next: "n_chapter_end"
+
+  - id: "n_river_free_response"
+    node_type: "NARRATION_ONLY"
+    narration_type: "ACTION_RESULT"
+    content: "Bob听完哈哈一笑：「你这人挺有意思的，有空常来河边找我聊。」"
+
+  # ============================================================
+  # 分支C：自由输入响应
+  # ============================================================
+  - id: "n_free_response"
+    node_type: "NARRATION_ONLY"
+    narration_type: "ACTION_RESULT"
+    content: "艾莉丝微微歪头，认真地听着你的话，嘴角浮起一丝笑意。「你的想法真有趣。」她轻声说。"
+
+npc_interactions:
+  # Location触发：Alice在老街
+  - trigger_type: "LOCATION_CHANGE"
+    npc_name: "alice"
+    location: "老街"
+    priority: 8
+    content: "「你也来老街了？正好，我刚煮了新咖啡。」"
+    cooldown_turns: 5
+
+  # 关系阈值触发：Alice关系≥60时
+  - trigger_type: "RELATION_THRESHOLD"
+    npc_name: "alice"
+    threshold: 60
+    priority: 5
+    content: "「今天心情不错，愿意和我多聊聊吗？」"
+    cooldown_turns: 10
+
+  # Location触发：Bob在清溪河
+  - trigger_type: "LOCATION_CHANGE"
+    npc_name: "bob"
+    location: "清溪河"
+    priority: 7
+    content: "「嘿！这儿！」Bob向你招手。"
+    cooldown_turns: 5

@@ -1,0 +1,7 @@
+player:
+  relation_type: "friend"
+  affinity: 50
+  trust: 45
+  key_events:
+    - "同班同学"
+    - "偶尔一起打球"

@@ -1,0 +1,68 @@
+name: "鲍勃"
+gender: "男"
+age: 17
+identity: "普通中学高三学生"
+
+basic_info:
+  academic_performance: "中等偏上"
+  residence: "中国西南省份某县城"
+  family_background: "普通工薪家庭"
+
+personality:
+  core_traits:
+    - "随和开朗"
+    - "健谈爱笑"
+    - "乐于助人"
+  preferences:
+    likes:
+      - "钓鱼"
+      - "户外活动"
+      - "探索小众地点"
+      - "和朋友聊天"
+    dislikes:
+      - "无聊"
+      - "被约束"
+      - "尴尬氛围"
+
+behaviors:
+  conflict_response:
+    description: "擅长化解冲突，会用玩笑缓和气氛"
+    好感度影响: +3
+
+  social_interaction:
+    description: "自来熟，容易和陌生人打开话匣子"
+    friendliness_range: [7, 10]
+
+mood_system:
+  baseline: 70
+  factors:
+    positive:
+      - "天气好"
+      - "钓到大鱼"
+      - "和朋友聊天"
+    negative:
+      - "无聊没事做"
+      - "下雨天"
+
+background:
+  education: "西南省份县城普通中学，高三在读"
+  dreams:
+    - "想创业"
+    - "想走遍中国"
+  limitations:
+    - "成绩不够拔尖"
+    - "没什么特别擅长的"
+
+speech_style:
+  tone: "轻松随意，带点幽默"
+  vocabulary: "日常口语化"
+  features:
+    - "喜欢用语气词"
+    - "说话直接"
+    - "经常开玩笑"
+
+topics_of_interest:
+  - "钓鱼技巧"
+  - "户外探险"
+  - "创业想法"
+  - "体育赛事"

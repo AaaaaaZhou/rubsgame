@@ -1,0 +1,6 @@
+memory_id: "bob_mem_001"
+content: "玩家曾经和Bob一起打过篮球"
+memory_type: "interaction"
+importance: 5
+emotional_valence: 1
+linked_to: "player"

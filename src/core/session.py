@@ -4,9 +4,14 @@
 """
 import time
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, TYPE_CHECKING
 
 from .types import Message, MemoryItem
+
+if TYPE_CHECKING:
+    from .plot.types import (
+        PlotState, NPCInteraction, DialogOption, OptionOutput
+    )
 
 
 class ConversationSession:
@@ -33,6 +38,18 @@ class ConversationSession:
         self.last_access_time: float = time.time()   # 最后访问时间
         self._logger = logger or logging.getLogger(f"session.{session_id}")
         self._logger.info(f"Session {session_id} initialized")
+
+        # ---- 视觉小说模式相关字段 ----
+        # 延迟导入避免循环依赖
+        from .plot.types import PlotState, DialogOption
+        self.plot_state: "PlotState" = PlotState()  # 剧情状态
+        self.npc_relationships: Dict[str, int] = {}  # NPC名称 -> 关系值
+        self.turn_count: int = 0                     # 对话轮次计数
+        self.last_emotion: str = "neutral"            # 上次情绪
+        self.last_option_turn: int = 0                # 上次选项生成轮次
+        self.npc_suggestion_pending: Optional[Dict] = None  # 待处理的NPC建议
+        self.option_pending: Optional[DialogOption] = None  # 待处理的选项
+        self.current_location: Optional[str] = None   # 当前位置
     
     def add_message(self, role: str, content: str) -> Message:
         """添加消息到完整历史和精炼历史
@@ -94,6 +111,21 @@ class ConversationSession:
             "refined_history": [msg.to_dict() for msg in self.refined_history],
             "session_memories": [mem.to_dict() for mem in self.session_memories],
             "last_access_time": self.last_access_time,
+            # Visual novel fields
+            "plot_state": {
+                "chapter_id": self.plot_state.chapter_id,
+                "node_id": self.plot_state.node_id,
+                "is_exploring": self.plot_state.is_exploring,
+                "is_branch_point": self.plot_state.is_branch_point,
+                "queued_narrative": self.plot_state.queued_narrative,
+            },
+            "npc_relationships": self.npc_relationships,
+            "turn_count": self.turn_count,
+            "last_emotion": self.last_emotion,
+            "last_option_turn": self.last_option_turn,
+            "npc_suggestion_pending": self.npc_suggestion_pending,
+            "option_pending": self.option_pending.content if self.option_pending else None,
+            "current_location": self.current_location,
         }
 
     @classmethod
@@ -126,6 +158,26 @@ class ConversationSession:
 
         # 恢复访问时间
         session.last_access_time = data.get("last_access_time", time.time())
+
+        # 恢复视觉小说字段
+        ps_data = data.get("plot_state", {})
+        if ps_data:
+            from .plot.types import PlotState
+            session.plot_state = PlotState(
+                chapter_id=ps_data.get("chapter_id", ""),
+                node_id=ps_data.get("node_id", ""),
+                is_exploring=ps_data.get("is_exploring", False),
+                is_branch_point=ps_data.get("is_branch_point", False),
+                queued_narrative=ps_data.get("queued_narrative")
+            )
+
+        session.npc_relationships = data.get("npc_relationships", {})
+        session.turn_count = data.get("turn_count", 0)
+        session.last_emotion = data.get("last_emotion", "neutral")
+        session.last_option_turn = data.get("last_option_turn", 0)
+        session.npc_suggestion_pending = data.get("npc_suggestion_pending")
+        session.option_pending = None  # Restored as content string only
+        session.current_location = data.get("current_location")
 
         session._logger.info(f"Session {session.session_id} restored from dict")
         return session
